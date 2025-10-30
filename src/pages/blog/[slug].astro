@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getEntryBySlug } from 'astro:content';
+const { slug } = Astro.params;
+const post = await getEntryBySlug('blog', slug);
+if (!post) throw new Error('Not found');
+const { Content } = await post.render();
+---
+<Base title={post.data.title}>
+  <article class="card">
+    <h1>{post.data.title}</h1>
+    <Content />
+  </article>
+</Base>

@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const posts = await getCollection('blog');
+---
+<Base title="Blog – Portfolio">
+  <h1>Blog</h1>
+  <ul>
+    {posts.sort((a,b)=>b.data.pubDate - a.data.pubDate).map(p => (
+      <li><a href={`/blog/${p.slug}/`}>{p.data.title}</a> — {p.data.pubDate.toISOString().slice(0,10)}</li>
+    ))}
+  </ul>
+</Base>

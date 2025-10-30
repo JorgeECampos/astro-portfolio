@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const cases = await getCollection('cases');
+---
+<Base title="Case Studies – Portfolio" description="Selected case studies with outcomes and artifacts.">
+  <h1>Case Studies</h1>
+  <div class="grid">
+    {cases.sort((a,b)=>b.data.pubDate - a.data.pubDate).map(c => (
+      <article class="card">
+        <h3><a href={`/case-studies/${c.slug}/`}>{c.data.title}</a></h3>
+        {c.data.client && <p><strong>Client:</strong> {c.data.client}</p>}
+        {c.data.outcomes && <ul>{c.data.outcomes.map(o => <li>{o}</li>)}</ul>}
+        <p>{c.data.pubDate.toISOString().slice(0,10)}</p>
+      </article>
+    ))}
+  </div>
+</Base>

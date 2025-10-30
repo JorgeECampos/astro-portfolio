@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Policies – Portfolio" description="Software development policies for quality, security, and compliance.">
+  <h1>Software Development Policies</h1>
+  <p>This section outlines a minimal, auditable policy set aligned with ISO 9001 / SOC 2 style expectations.</p>
+
+  <h2>1. Version Control</h2>
+  <ul>
+    <li>Branching: main (protected), feature/*, release/*, hotfix/*.</li>
+    <li>Commits: Conventional Commits; PRs require 1–2 reviewers.</li>
+    <li>Tags/Releases: semantic versioning.</li>
+  </ul>
+
+  <h2>2. Code Review & Quality</h2>
+  <ul>
+    <li>Automated linting + format on commit.</li>
+    <li>Minimum test coverage thresholds per repo.</li>
+    <li>Security scanning (SAST/Dependency audit) on PR.</li>
+  </ul>
+
+  <h2>3. CI/CD</h2>
+  <ul>
+    <li>Build → Test → Scan → Review → Release gates.</li>
+    <li>Environments: dev → stage → prod; approvals required for prod.</li>
+    <li>Rollback and release notes policy.</li>
+  </ul>
+
+  <h2>4. Security</h2>
+  <ul>
+    <li>Secrets in vault; no credentials in code.</li>
+    <li>Least privilege IAM; regular key rotation.</li>
+    <li>OWASP Top 10 awareness & secure coding checklist.</li>
+  </ul>
+
+  <h2>5. Change Control</h2>
+  <ul>
+    <li>Link PRs to tickets; describe risk/impact.</li>
+    <li>Record migrations/data changes and backout plans.</li>
+  </ul>
+
+  <h2>Artifacts</h2>
+  <ul>
+    <li>Templates: ADR (Architecture Decision Record), RPT/CRR, Release Notes.</li>
+    <li>Traceability: ticket → PR → test evidence → release.</li>
+  </ul>
+</Base>

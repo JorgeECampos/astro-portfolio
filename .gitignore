@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Node / Astro base
+# ─────────────────────────────────────────────
+node_modules/
+dist/
+.cache/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment / Config
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Build artifacts
+*.local
+*.lock
+*.log
+*.gz
+
+# System
+.idea/
+*.iml
+*.vs/
+*.sublime-workspace
+*.sublime-project
+
+# ─────────────────────────────────────────────
+# Astro specific
+# ─────────────────────────────────────────────
+.astro/
+astro.config.ts.timestamp*
+# Vite cache
+vite.config.timestamp*
+.vite/
+
+# ─────────────────────────────────────────────
+# Public assets you WANT to keep (docs, diagrams)
+# ─────────────────────────────────────────────
+!public/docs/**
+!public/diagrams/**
+!public/images/**
+!public/samples/**
+!public/cv.pdf

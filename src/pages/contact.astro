@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Contact – Portfolio">
+  <h1>Contact</h1>
+  <form id="contact-form">
+    <label>Name</label>
+    <input name="name" required />
+    <label>Email</label>
+    <input type="email" name="email" required />
+    <label>Message</label>
+    <textarea name="message" rows="5" required></textarea>
+    <button type="submit">Send</button>
+  </form>
+  <script>
+    const form = document.getElementById('contact-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(form).entries());
+      const res = await fetch('/api/contact', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body) });
+      const json = await res.json();
+      alert(json.ok ? 'Message sent!' : 'Something went wrong.');
+      form.reset();
+    });
+  </script>
+</Base>

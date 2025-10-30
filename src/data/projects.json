@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Software Development Policies",
+    "tags": [
+      "Policies",
+      "SDLC",
+      "Compliance"
+    ],
+    "summary": "End-to-end policy set: Git standards, code review, CI/CD, security, change control.",
+    "links": [
+      {
+        "label": "Sample PDF",
+        "url": "/samples/policies-sample.pdf"
+      }
+    ]
+  },
+  {
+    "title": "API & SDK Documentation",
+    "tags": [
+      "API",
+      "SDK",
+      "Docs"
+    ],
+    "summary": "Reference and guides for REST/GraphQL SDKs with examples and versioning.",
+    "links": [
+      {
+        "label": "Repo",
+        "url": "https://github.com/JorgeECampos/sdk-docs"
+      }
+    ]
+  },
+  {
+    "title": "Validation & QA Guidelines",
+    "tags": [
+      "QA",
+      "Validation",
+      "Testing"
+    ],
+    "summary": "Strategy for unit/integration tests, coverage KPIs, UAT gates and release readiness.",
+    "links": [
+      {
+        "label": "Read",
+        "url": "/samples/qa-guidelines.pdf"
+      }
+    ]
+  }
+]

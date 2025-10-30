@@ -1,0 +1,44 @@
+@startuml D1
+skin rose
+skinparam backgroundColor #f8f9fa
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor #666
+  RoundCorner 15
+}
+
+title Business Platform – High-Level Architecture
+
+actor "End User" as User
+
+rectangle "Front-End Layer\n(Web & Mobile Clients)" as FE {
+  component "UI Components\n(React/Vue)" as UI
+  component "Auth Handler\n(Session & Tokens)" as Auth
+  component "API Client\n(Axios / Fetch)" as ApiClient
+}
+
+rectangle "API Gateway" as Gateway {
+  component "Routing\nand Load Balancing" as Routing
+  component "Request Validation\n& Security Filters" as Security
+}
+
+rectangle "Microservices Layer" as Services {
+  component "Business Formation\nService" as Formation
+  component "Document Generator\nService" as Docs
+  component "Tax & Payment\nIntegration" as Tax
+  component "Notifications\n(Email / SMS)" as Notify
+}
+
+database "Central Data Store" as DB
+cloud "Third-Party APIs\n(Government / Banking / Cloud Storage)" as External
+
+User --> UI : Interacts
+UI --> Auth
+UI --> ApiClient
+ApiClient --> Gateway : REST / JSON
+Gateway --> Services : Routes Requests
+Services --> DB : CRUD
+Services --> External : API Calls
+
+@enduml

@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+const skills = {
+  "Writing & Docs": ["SDS/IDD/API docs", "Policies & SOPs", "Style guides", "Diagrams (PlantUML/Lucid)"],
+  "Dev & Tooling": ["Git/GitHub", "CI/CD", "Markdown/MDX", "Astro/React", "Python/Node.js"],
+  "Quality & Security": ["Test strategy", "Validation evidence", "OWASP Top 10", "SOC 2 / ISO 9001 awareness"],
+  "Platforms": ["Confluence", "Google Workspace", "Jira", "Azure DevOps"]
+};
+---
+<Base title="Skills – Portfolio" description="Skills and tooling for technical writing and software documentation.">
+  <h1>Skills</h1>
+  <div class="grid">
+    {Object.entries(skills).map(([cat, items]) => (
+      <section class="card">
+        <h3>{cat}</h3>
+        <ul>
+          {items.map(i => <li>{i}</li>)}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Base>
