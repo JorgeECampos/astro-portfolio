@@ -1,22 +1,160 @@
 ---
 import Base from '../layouts/Base.astro';
-const skills = {
-  "Writing & Docs": ["SDS/IDD/API docs", "Policies & SOPs", "Style guides", "Diagrams (PlantUML/Lucid)"],
-  "Dev & Tooling": ["Git/GitHub", "CI/CD", "Markdown/MDX", "Astro/React", "Python/Node.js"],
-  "Quality & Security": ["Test strategy", "Validation evidence", "OWASP Top 10", "SOC 2 / ISO 9001 awareness"],
-  "Platforms": ["Confluence", "Google Workspace", "Jira", "Azure DevOps"]
+
+// === Datos base (mismo look de chips) ===
+const skills: Record<string, string[]> = {
+  'Writing & Docs': [
+    'SDS / IDD / API Docs',
+    'Policies & SOPs',
+    'Style Guides',
+    'Diagrams (PlantUML / Mermaid / Lucid)'
+  ],
+  'Dev & Tooling': [
+    'Git / GitHub',
+    'CI/CD',
+    'Markdown / MDX',
+    'Astro / React',
+    'Python / Node.js'
+  ],
+  'Quality & Security': [
+    'Test Strategy',
+    'Validation Evidence',
+    'OWASP Top 10',
+    'SOC 2 · ISO 9001 (awareness)'
+  ],
+  'Platforms': [
+    'Confluence',
+    'Google Workspace',
+    'Jira',
+    'Azure DevOps'
+  ],
 };
+
+const icons: Record<string, string> = {
+  'Writing & Docs': '📝',
+  'Dev & Tooling': '🧰',
+  'Quality & Security': '🛡️',
+  'Platforms': '🗂️',
+};
+
+// === Solo estas tendrán barra de “proficiency” ===
+const importantLevels: Record<string, 'Proficient'|'Advanced'|'Expert'> = {
+  'SDS / IDD / API Docs': 'Expert',
+  'Policies & SOPs': 'Expert',
+  'Git / GitHub': 'Expert',
+  'CI/CD': 'Advanced',
+  'Astro / React': 'Proficient',
+  'Python / Node.js': 'Proficient',
+  'Validation Evidence': 'Advanced',
+};
+
+const levelBar = (lvl: string) =>
+  lvl === 'Expert' ? 'w-[95%]' : lvl === 'Advanced' ? 'w-[75%]' : 'w-[55%]';
+const levelTone = (lvl: string) =>
+  lvl === 'Expert' ? 'bg-emerald-500' : lvl === 'Advanced' ? 'bg-indigo-500' : 'bg-sky-500';
+
+const CATS = Object.keys(skills);
 ---
+
 <Base title="Skills – Portfolio" description="Skills and tooling for technical writing and software documentation.">
-  <h1>Skills</h1>
-  <div class="grid">
+  <!-- Hero -->
+  <section class="mb-10 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-10 text-white shadow-2xl">
+    <h1 class="text-4xl md:text-5xl font-extrabold drop-shadow-sm">Skills</h1>
+    <p class="mt-3 max-w-3xl text-lg opacity-95">
+      Documentation-first mindset with hands-on SDLC, CI/CD, and security awareness.
+      I design policy frameworks, write developer docs, and ship small tools when needed.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href="/cv.pdf" class="rounded-full bg-white/95 px-5 py-2 font-semibold text-indigo-700 hover:bg-white transition" target="_blank" rel="noopener noreferrer">Download CV</a>
+      <a href="/projects" class="rounded-full bg-black/20 px-5 py-2 font-semibold hover:bg-black/30 transition">View Projects</a>
+    </div>
+  </section>
+
+  <!-- Controles -->
+  <section class="mb-6 flex flex-wrap items-center gap-3">
+    <input id="q" placeholder="Search skills… (api, policy, react…)" class="w-full md:w-96 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+    <select id="cat" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      <option value="">All categories</option>
+      {CATS.map(c => <option value={c}>{c}</option>)}
+    </select>
+    <span id="count" class="ml-auto text-sm text-white/60"></span>
+  </section>
+
+  <!-- Tarjetas -->
+  <section id="wrap" class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
     {Object.entries(skills).map(([cat, items]) => (
-      <section class="card">
-        <h3>{cat}</h3>
-        <ul>
-          {items.map(i => <li>{i}</li>)}
-        </ul>
-      </section>
+      <article class="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur group" data-cat={cat}>
+        <h3 class="mb-4 text-xl font-bold">
+          <span class="mr-2">{icons[cat] || '•'}</span>{cat}
+        </h3>
+
+        <div class="flex flex-col gap-3">
+          {items.map(name => (
+            <div class="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/90 hover:bg-white/10 transition"
+                 data-name={name.toLowerCase()}>
+              <div class="flex items-center gap-2">
+                <span class="inline-block rounded-full bg-white/10 px-2 py-0.5 text-xs">{name}</span>
+                {importantLevels[name] && (
+                  <span class="ml-auto text-xs text-white/60">{importantLevels[name]}</span>
+                )}
+              </div>
+
+              {importantLevels[name] && (
+                <div class="mt-2 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                  <div class={`h-full ${levelTone(importantLevels[name])} ${levelBar(importantLevels[name])} rounded-full`}></div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </article>
     ))}
+  </section>
+
+  <!-- Leyenda -->
+  <section class="mt-8 text-sm text-white/70 flex flex-wrap gap-4">
+    <span><span class="inline-block h-2 w-6 rounded bg-emerald-500 align-middle mr-1"></span>Expert</span>
+    <span><span class="inline-block h-2 w-6 rounded bg-indigo-500 align-middle mr-1"></span>Advanced</span>
+    <span><span class="inline-block h-2 w-6 rounded bg-sky-500 align-middle mr-1"></span>Proficient</span>
+  </section>
+
+ <!-- Credly Badges (unificado, sin links de perfil) -->
+<section class="mt-14 rounded-2xl border border-white/10 bg-white/5 p-6">
+  <h5 class="mb-4 text-sm font-semibold text-white/80">Credly Badges</h5>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 justify-items-center">
+    <!-- Cuenta A -->
+    <div data-iframe-width="240" data-iframe-height="270"
+      data-share-badge-id="d3f204f7-b4ae-4e6f-a611-b22d3b0c1ad9"
+      data-share-badge-host="https://www.credly.com"></div>
+
+    <div data-iframe-width="240" data-iframe-height="270"
+      data-share-badge-id="f2d89bdf-cb52-48c5-8937-ab202a07794f"
+      data-share-badge-host="https://www.credly.com"></div>
+
+    <div data-iframe-width="240" data-iframe-height="270"
+      data-share-badge-id="5033dcb9-b529-4c48-8fb5-a24165b92933"
+      data-share-badge-host="https://www.credly.com"></div>
+
+    <div data-iframe-width="240" data-iframe-height="270"
+      data-share-badge-id="650b8df0-9dc6-448c-929c-25f40d639b25"
+      data-share-badge-host="https://www.credly.com"></div>
+
+    <div data-iframe-width="240" data-iframe-height="270"
+      data-share-badge-id="029035fe-1446-4563-9cd6-8b2509db9ca2"
+      data-share-badge-host="https://www.credly.com"></div>
+
+    <div data-iframe-width="240" data-iframe-height="270"
+      data-share-badge-id="7a1540fa-6f49-447d-be6a-2fd470b24d2f"
+      data-share-badge-host="https://www.credly.com"></div>
+    
+    <div data-iframe-width="240" data-iframe-height="270" 
+      data-share-badge-id="f1a88599-034e-45f7-ac8c-1ad45abf5526" 
+      data-share-badge-host="https://www.credly.com"></div>
   </div>
+</section>
+
+<!-- Cargar UNA sola vez en toda la página -->
+<script is:raw src="https://cdn.credly.com/assets/utilities/embed.js" async defer></script>
+
 </Base>

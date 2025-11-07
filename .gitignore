@@ -13,6 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
 
 # Environment / Config
 .env
@@ -24,14 +25,13 @@ pnpm-debug.log*
 *.swp
 *.swo
 *.bak
-
-# Build artifacts
 *.local
 *.lock
-*.log
 *.gz
 
-# System
+# ─────────────────────────────────────────────
+# System / IDE
+# ─────────────────────────────────────────────
 .idea/
 *.iml
 *.vs/
@@ -39,19 +39,34 @@ pnpm-debug.log*
 *.sublime-project
 
 # ─────────────────────────────────────────────
-# Astro specific
+# Astro / Vite specific
 # ─────────────────────────────────────────────
 .astro/
 astro.config.ts.timestamp*
-# Vite cache
-vite.config.timestamp*
 .vite/
+vite.config.timestamp*
 
 # ─────────────────────────────────────────────
-# Public assets you WANT to keep (docs, diagrams)
+# Vercel & CI/CD
+# ─────────────────────────────────────────────
+.vercel/
+.vercel_build_output/
+coverage/
+playwright-report/
+*.lcov
+
+# ─────────────────────────────────────────────
+# Public assets to KEEP (docs, diagrams)
 # ─────────────────────────────────────────────
 !public/docs/**
 !public/diagrams/**
 !public/images/**
 !public/samples/**
 !public/cv.pdf
+
+# ─────────────────────────────────────────────
+# Misc
+# ─────────────────────────────────────────────
+# Backup & temp OS files
+*.bak
+*.tmp

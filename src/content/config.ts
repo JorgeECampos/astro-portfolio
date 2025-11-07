@@ -4,7 +4,8 @@ import { defineCollection, z } from 'astro:content';
     schema: z.object({
       title: z.string(),
       description: z.string().optional(),
-      pubDate: z.date()
+      pubDate: z.date(),
+      image: z.string().optional(),
     })
   });
   const cases = defineCollection({

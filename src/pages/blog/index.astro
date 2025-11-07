@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const query = Astro.url.searchParams.get('q')?.toLowerCase() || '';
+const filteredPosts = posts.filter(p =>
+  p.data.title.toLowerCase().includes(query) ||
+  p.data.description?.toLowerCase().includes(query)
+);
+---
+
+<Base title="Blog">
+  <section class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-[260px,1fr] gap-10">
+    <!-- Sidebar -->
+    <aside class="space-y-6">
+      <div>
+        <h2 class="text-xl font-semibold text-indigo-400 mb-2">Search</h2>
+        <form method="get" class="relative">
+          <input
+            type="text"
+            name="q"
+            value={query}
+            placeholder="Search posts..."
+            class="w-full rounded-lg bg-white/10 border border-white/20 px-4 py-2 text-sm text-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          />
+          {query && (
+            <a href="/blog" class="absolute right-3 top-2 text-gray-400 hover:text-white">✕</a>
+          )}
+        </form>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-indigo-400 mb-3">All Posts</h2>
+        <ul class="space-y-2 text-sm">
+          {posts.map(p => (
+            <li>
+              <a
+                href={`/blog/${p.slug}`}
+                class="block text-gray-300 hover:text-indigo-300 transition"
+              >
+                {p.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div>
+      <h1 class="text-4xl font-bold text-indigo-400 mb-6">Blog</h1>
+
+      {filteredPosts.length === 0 ? (
+        <p class="text-gray-400">No posts found for “{query}”.</p>
+      ) : (
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPosts.map(p => (
+            <a
+              href={`/blog/${p.slug}`}
+              class="block rounded-2xl bg-white/5 border border-white/10 p-6 hover:-translate-y-1 hover:bg-white/10 transition"
+            >
+              <h2 class="text-lg font-semibold mb-1">{p.data.title}</h2>
+              <p class="text-sm text-gray-400 mb-2">{p.data.pubDate.toISOString().slice(0,10)}</p>
+              {p.data.description && <p class="text-gray-300 text-sm">{p.data.description}</p>}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</Base>

@@ -1,14 +1,53 @@
 ---
+export const prerender = true;
+
 import Base from '../../layouts/Base.astro';
-import { getEntryBySlug } from 'astro:content';
+import { getCollection, getEntryBySlug } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((p) => ({ params: { slug: p.slug } }));
+}
+
 const { slug } = Astro.params;
-const post = await getEntryBySlug('blog', slug);
-if (!post) throw new Error('Not found');
+
+// Obtén la entrada y su componente renderizable
+const post = await getEntryBySlug('blog', slug!);
+if (!post) throw new Error(`Post not found: ${slug}`);
+
 const { Content } = await post.render();
+const { title, description, pubDate, image } = post.data;
 ---
-<Base title={post.data.title}>
-  <article class="card">
-    <h1>{post.data.title}</h1>
-    <Content />
+
+<Base title={`${title} – Blog`} description={description}>
+  <article class="max-w-3xl mx-auto py-10">
+
+    <h1 class="text-4xl font-extrabold mb-2">{title}</h1>
+    <p class="text-sm text-gray-400 mb-8">
+      {pubDate.toISOString().slice(0, 10)}
+    </p>
+
+    {image && (
+     <section class="relative overflow-hidden rounded-2xl mb-8 group">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
+      <img
+        src={image}
+        alt={title}
+        loading="lazy"
+        decoding="async"
+        class="w-full max-h-[700px] object-contain md:object-cover rounded-2xl transition-transform duration-500 group-hover:scale-[1.03]"
+      />
+    </section>
+    )}
+
+    <div class="prose prose-invert max-w-none">
+      <Content />
+    </div>
+
+    <div class="mt-10">
+      <a href="/blog" class="text-indigo-300 hover:text-indigo-200 transition">
+        ← Back to Blog
+      </a>
+    </div>
   </article>
 </Base>
