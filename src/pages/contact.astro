@@ -2,20 +2,19 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="Contact – Portfolio">
+
   <section class="max-w-xl mx-auto px-4 py-10 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 rounded-2xl shadow">
     <h1 class="text-3xl font-semibold tracking-tight mb-6">Contact</h1>
 
-    <!-- Mensajes de estado accesibles -->
     <div id="form-status" class="hidden mb-4 rounded-xl border p-3 text-sm" aria-live="polite"></div>
 
     <form id="contact-form" class="grid gap-4" novalidate>
-      <!-- Honeypot anti‑spam -->
       <input type="text" name="company" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
       <div class="grid gap-1">
         <label for="name" class="text-sm font-medium">Name</label>
-        <input id="name" name="name" required autocomplete="name" 
-              class="rounded-xl border border-gray-700 bg-gray-800 px-3 py-2 focus:ring-2 focus:ring-indigo-500" />
+        <input id="name" name="name" required autocomplete="name"
+               class="rounded-xl border border-gray-700 bg-gray-800 px-3 py-2 focus:ring-2 focus:ring-indigo-500" />
         <p class="text-xs text-red-600 min-h-[1rem]" id="name-error"></p>
       </div>
 
@@ -28,14 +27,14 @@ import Base from '../layouts/Base.astro';
 
       <div class="grid gap-1">
         <label for="message" class="text-sm font-medium">Message</label>
-        <textarea id="message" name="message" rows="6" required minlength="10" 
+        <textarea id="message" name="message" rows="6" required minlength="10"
                   class="rounded-xl border border-gray-700 bg-gray-800 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
                   aria-invalid="false"></textarea>
         <p class="text-xs text-red-600 min-h-[1rem]" id="message-error"></p>
       </div>
 
       <div class="flex items-center gap-3">
-        <button id="submit-btn" type="submit" 
+        <button id="submit-btn" type="submit"
                 class="rounded-xl border px-4 py-2 font-medium disabled:opacity-60">
           Send
         </button>
@@ -43,13 +42,16 @@ import Base from '../layouts/Base.astro';
       </div>
     </form>
 
-    <p class="mt-6 text-xs text-gray-500">We respect your privacy. Your info is only used to reply to your message.</p>
+    <p class="mt-6 text-xs text-gray-500">
+      We respect your privacy. Your info is only used to reply to your message.
+    </p>
   </section>
 
-  <!-- Google reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js?render=6Ldu8gMsAAAAAOyaUzEiOZo0SbbKdblvO98UD_fj"></script>
+  <!-- ✅ Google reCAPTCHA v3 script (no módulo) -->
+  <script src="https://www.google.com/recaptcha/api.js?render=6Ldu8gMsAAAAAOyaUzEiOZo0SbbKdblvO98UD_fj" defer></script>
 
-  <script>
+  <!-- ✅ Inline script con manejo completo -->
+  <script is:inline>
     const form = document.getElementById('contact-form');
     const statusBox = document.getElementById('form-status');
     const btn = document.getElementById('submit-btn');
@@ -91,63 +93,62 @@ import Base from '../layouts/Base.astro';
       return ok;
     }
 
-    for (const key in fields) {
-      fields[key].el.addEventListener('input', () => {
-        const res = fields[key].validate(fields[key].el.value);
-        setError(key, res);
-      });
-    }
-
     function showStatus(kind, msg) {
-      statusBox.className = `mb-4 rounded-xl border p-3 text-sm ${kind}`;
+      statusBox.className = `mb-4 rounded-xl border p-3 text-sm ${kind === 'ok' ? 'border-green-500 text-green-700' : 'border-red-500 text-red-700'}`;
       statusBox.textContent = msg;
       statusBox.classList.remove('hidden');
     }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!validateAll()) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateAll()) return;
+      if (form.querySelector('input[name="company"]').value) return; // honeypot
 
-  const hp = form.querySelector('input[name="company"]').value;
-  if (hp) return;
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      showStatus('ok', 'Verifying…');
 
-  btn.disabled = true;
-  spinner.classList.remove('hidden');
-  showStatus('ok', 'Verifying…');
+      try {
+        // Espera que reCAPTCHA esté listo
+        await new Promise(r => grecaptcha.ready(r));
+        const token = await grecaptcha.execute('6Ldu8gMsAAAAAOyaUzEiOZo0SbbKdblvO98UD_fj', { action: 'submit' });
 
-  try {
-    // Espera a que reCAPTCHA cargue
-    await new Promise(r => grecaptcha.ready(r));
-    const token = await grecaptcha.execute('6Ldu8gMsAAAAAOyaUzEiOZo0SbbKdblvO98UD_fj', { action: 'submit' });
+        const body = { ...Object.fromEntries(new FormData(form).entries()), token };
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
 
-    const body = { ...Object.fromEntries(new FormData(form).entries()), token };
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body)
+        const json = await res.json();
+        if (res.ok && json.ok) {
+          showStatus('ok', 'Message sent! I\'ll get back to you soon.');
+          form.reset();
+        } else {
+          showStatus('error', json?.error || 'Captcha failed.');
+        }
+      } catch (err) {
+        console.error('Network/Recaptcha error:', err);
+        showStatus('error', 'Network error.');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+      }
     });
-    const json = await res.json();
-
-    if (res.ok && json.ok) {
-      showStatus('ok', 'Message sent! I\'ll get back to you soon.');
-      form.reset();
-    } else {
-      showStatus('error', json?.error || 'Captcha failed.');
-    }
-  } catch (err) {
-    showStatus('error', 'Network error.');
-  } finally {
-    btn.disabled = false;
-    spinner.classList.add('hidden');
-  }
-});
-
   </script>
 
+  <!-- ✅ Content Security Policy para evitar bloqueos -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' data:;
+                 script-src 'self' https://www.google.com https://www.gstatic.com https://www.recaptcha.net 'unsafe-inline';
+                 style-src 'self' 'unsafe-inline';
+                 connect-src 'self';
+                 frame-src https://www.google.com https://www.recaptcha.net;">
+
   <style>
-    /* Estilos mínimos si no usas Tailwind */
     :where(input, textarea) { width: 100%; }
     @media (prefers-reduced-motion: reduce) { .animate-pulse { animation: none; } }
   </style>
-  
+
 </Base>
