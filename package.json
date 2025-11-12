@@ -10,10 +10,19 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "docx": "^9.5.1",
+    "docxtemplater": "^3.67.4",
     "framer-motion": "^12.23.24",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.553.0",
+    "octokit": "^5.0.5",
+    "pizzip": "^3.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "resend": "^6.4.1"
+    "resend": "^6.4.1",
+    "tailwind-variants": "^3.1.1"
   },
   "devDependencies": {
     "@astrojs/react": "^4.4.1",

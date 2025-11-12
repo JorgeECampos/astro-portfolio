@@ -1,47 +1,160 @@
 ---
 import Base from '../layouts/Base.astro';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { FileText, RefreshCw, GitBranch, CheckCircle, BookOpen, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import SuggestEditButton from "@/components/SuggestEditButton";
+
+const ticketID = '12345';
+const version = '1';
+
+// URLs para cada documento
+const policies = {
+  review: "/api/policies.docx", // first one (Document Review Policy)
+  lifecycle: "/api/policy-lifecycle.docx",
+  versioning: "/api/policy-versioning.docx",
+  qa: "/api/policy-qa.docx",
+};
+
 ---
-<Base title="Policies – Portfolio" description="Software development policies for quality, security, and compliance.">
-  <h1>Software Development Policies</h1>
-  <p>This section outlines a minimal, auditable policy set aligned with ISO 9001 / SOC 2 style expectations.</p>
 
-  <h2>1. Version Control</h2>
-  <ul>
-    <li>Branching: main (protected), feature/*, release/*, hotfix/*.</li>
-    <li>Commits: Conventional Commits; PRs require 1–2 reviewers.</li>
-    <li>Tags/Releases: semantic versioning.</li>
-  </ul>
+<Base title="Policies – Docs Portal">
+  <section class="max-w-5xl mx-auto px-4 py-12 space-y-8">
+    <!-- Header -->
+    <header class="text-center space-y-4">
+      <BookOpen class="w-12 h-12 mx-auto text-blue-600 dark:text-blue-400" />
+      <h1 class="text-3xl font-bold">Technical Writing Policies</h1>
+      <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        A collection of concise policies that guide document creation, review, and version control within
+        the documentation lifecycle.
+      </p>
+      <div class="flex justify-center gap-4 pt-4">
+        <a
+          href="/api/policies.zip"
+          class="rounded-xl border px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          📦 Download All (.zip)
+        </a>
 
-  <h2>2. Code Review & Quality</h2>
-  <ul>
-    <li>Automated linting + format on commit.</li>
-    <li>Minimum test coverage thresholds per repo.</li>
-    <li>Security scanning (SAST/Dependency audit) on PR.</li>
-  </ul>
+         <!-- 👇 paste the Option A dialog version here -->
+  <button id="suggest-btn" class="rounded-xl border px-4 py-2 text-sm">💬 Suggest Edit</button>
+  <dialog id="suggest-modal" class="rounded-2xl p-6 w-full max-w-lg">
+    <form method="dialog"><button class="float-right">✖</button></form>
+    <h2 class="text-lg font-semibold mb-3">Suggest an edit</h2>
+    <form id="suggest-form" class="grid gap-3">
+      <input name="company" class="hidden" tabIndex="-1" autoComplete="off" />
+      <select name="policy" class="rounded border px-3 py-2">
+        <option>Document Review Policy</option>
+        <option>Content Lifecycle Policy</option>
+        <option>Versioning & Branching Policy</option>
+        <option>Documentation QA Policy</option>
+      </select>
+      <input name="section" placeholder="Section (optional)" class="rounded border px-3 py-2" />
+      <textarea name="suggestion" required rows="5" class="rounded border px-3 py-2"
+        placeholder="Describe your change..."></textarea>
+      <input name="contact" type="email" placeholder="you@example.com" class="rounded border px-3 py-2" />
+      <button class="rounded-xl bg-blue-600 text-white px-4 py-2" id="send-btn">Submit</button>
+    </form>
+  </dialog>
 
-  <h2>3. CI/CD</h2>
-  <ul>
-    <li>Build → Test → Scan → Review → Release gates.</li>
-    <li>Environments: dev → stage → prod; approvals required for prod.</li>
-    <li>Rollback and release notes policy.</li>
-  </ul>
+  <script>
+    const open = document.getElementById('suggest-btn');
+    const dlg  = document.getElementById('suggest-modal');
+    const form = document.getElementById('suggest-form');
+    open.addEventListener('click', () => dlg.showModal());
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = Object.fromEntries(new FormData(form).entries());
+      const res = await fetch('/api/suggest-edit', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) { form.reset(); dlg.close(); alert('✅ Suggestion submitted'); }
+      else { alert('❌ ' + await res.text()); }
+    });
+  </script>
+</div>
 
-  <h2>4. Security</h2>
-  <ul>
-    <li>Secrets in vault; no credentials in code.</li>
-    <li>Least privilege IAM; regular key rotation.</li>
-    <li>OWASP Top 10 awareness & secure coding checklist.</li>
-  </ul>
+    <!-- Policies grid -->
+    <div class="grid gap-8 md:grid-cols-2">
+      <!-- Document Review Policy -->
+      <Card class="shadow-xl rounded-2xl">
+        <CardHeader>
+          <FileText class="w-8 h-8 text-blue-500" />
+          <CardTitle>Document Review Policy</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+          <p><strong>Purpose:</strong> Ensure that all documentation is accurate, clear, and aligned with product updates.</p>
+          <ul class="list-disc pl-5">
+            <li>At least one peer review and one SME validation required.</li>
+            <li>Comments tracked and resolved in GitHub or ClickUp.</li>
+            <li>Final approval by TW Lead before release.</li>
+            <li>Updates reviewed within 3 business days.</li>
+          </ul>
+          <a href={policies.review} class="inline-flex items-center gap-2 mt-4 text-blue-600 hover:underline">
+            <Download class="w-4 h-4" /> Download DOCX
+          </a>
+        </CardContent>
+      </Card>
 
-  <h2>5. Change Control</h2>
-  <ul>
-    <li>Link PRs to tickets; describe risk/impact.</li>
-    <li>Record migrations/data changes and backout plans.</li>
-  </ul>
+      <!-- Content Lifecycle Policy -->
+      <Card class="shadow-xl rounded-2xl">
+        <CardHeader>
+          <RefreshCw class="w-8 h-8 text-green-500" />
+          <CardTitle>Content Lifecycle Policy</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+          <p><strong>Stages:</strong> Draft → Review → Published → Archived</p>
+          <ul class="list-disc pl-5">
+            <li>Major reviews every 6 months.</li>
+            <li>Auto-tag “Needs Review” if older than 12 months.</li>
+            <li>Archived docs must display a deprecation notice.</li>
+          </ul>
+          <a href={policies.lifecycle} class="inline-flex items-center gap-2 mt-4 text-blue-600 hover:underline">
+            <Download class="w-4 h-4" /> Download DOCX
+          </a>
+        </CardContent>
+      </Card>
 
-  <h2>Artifacts</h2>
-  <ul>
-    <li>Templates: ADR (Architecture Decision Record), RPT/CRR, Release Notes.</li>
-    <li>Traceability: ticket → PR → test evidence → release.</li>
-  </ul>
+      <!-- Versioning & Branching Policy -->
+      <Card class="shadow-xl rounded-2xl">
+        <CardHeader>
+          <GitBranch class="w-8 h-8 text-purple-500" />
+          <CardTitle>Versioning & Branching Policy</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+          <ul class="list-disc pl-5">
+            <li>Branches match product versions (e.g. <code>release/g7.2</code>).</li>
+            <li>Hotfix branches follow <code>hotfix/docs-{ticketID}</code>.</li>
+            <li>Published under <code>/docs/{version}</code>.</li>
+            <li>Retired versions stay live for 12 months.</li>
+          </ul>
+          <a href={policies.versioning} class="inline-flex items-center gap-2 mt-4 text-blue-600 hover:underline">
+            <Download class="w-4 h-4" /> Download DOCX
+          </a>
+        </CardContent>
+      </Card>
+
+      <!-- Documentation QA Policy -->
+      <Card class="shadow-xl rounded-2xl">
+        <CardHeader>
+          <CheckCircle class="w-8 h-8 text-teal-500" />
+          <CardTitle>Documentation QA Policy</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+          <p><strong>Checklist before publishing:</strong></p>
+          <ul class="list-disc pl-5">
+            <li>Grammar and spelling checked.</li>
+            <li>Diagrams validated for accuracy.</li>
+            <li>Links and code samples tested.</li>
+            <li>Metadata and accessibility verified.</li>
+          </ul>
+          <a href={policies.qa} class="inline-flex items-center gap-2 mt-4 text-blue-600 hover:underline">
+            <Download class="w-4 h-4" /> Download DOCX
+          </a>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
 </Base>
