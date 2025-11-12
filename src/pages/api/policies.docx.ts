@@ -33,9 +33,9 @@ export async function GET({ url }: { url: URL }) {
   extra.push(H2("Review Workflow"));
   extra.push(P("Draft → Peer Review → SME Validation → Final Approval → Publish → Post-Publish QA."));
   extra.push(...Bulleted([
-    "Comments tracked en GitHub/ClickUp; no cambios fuera del sistema.",
-    "SLAs: Peer Review ≤ 3 días hábiles; SME ≤ 5 días hábiles.",
-    "Bloqueo de publicación si hay comentarios ‘Must-Fix’ abiertos.",
+    "Comments tracked on GitHub/ClickUp; no changes outside the system.",
+    "SLAs: Peer Review ≤ 3 business days; SME ≤ 5 business days.",
+    "Posting will be blocked if there are open 'Must-Fix' comments.",
   ]));
 
   // Versioning
@@ -56,11 +56,11 @@ export async function GET({ url }: { url: URL }) {
   // QA Checklist
   extra.push(H2("Pre-Publish QA Checklist"));
   extra.push(...Bulleted([
-    "Grammar/style: Microsoft WSG; banned terms validados.",
-    "Diagrams: fuentes legibles, versión del producto, leyenda.",
-    "Links: 200 OK; anchors válidos.",
-    "Code: compilable/ejecutable; versiones de SDK citadas.",
-    "Accessibility: headings ordenados, alt-text en imágenes, contraste ≥ 4.5:1.",
+    "Grammar/style: Microsoft WSG; banned terms validated.",
+    "Diagrams: legible fonts, product version, legend.",
+    "Links: 200 OK; valid anchors.",
+    "Code: compileable/executable; SDK versions cited.",
+    "Accessibility: orderly headings, alt-text in images, contrast ≥ 4.5:1.",
   ]));
 
   // Metrics
@@ -74,8 +74,8 @@ export async function GET({ url }: { url: URL }) {
   // Governance
   extra.push(H2("Governance & Exceptions"));
   extra.push(...Bulleted([
-    "Excepciones solo por escrito por TW Lead; documentar en registro de excepciones.",
-    "Docs archivados mantienen banner de deprecación 12 meses.",
+    "Exceptions only in writing by TW Lead; document in exception log.",
+    "Archived documents retain a deprecation banner for 12 months.",
   ]));
 
   const doc = await buildPolicyDoc({
