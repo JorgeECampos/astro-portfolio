@@ -5,3 +5,4 @@ export function Button({ children, variant = "default" }) {
     : "bg-blue-600 text-white hover:bg-blue-700";
   return <button className={`${base} ${styles}`}>{children}</button>;
 }
+
