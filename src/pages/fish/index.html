@@ -45,7 +45,7 @@
     }
 
     canvas {
-      background: radial-gradient(circle at top, #1d4ed8 0%, #020617 55%, #000 100%);
+      background: #020617;
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,.6);
     }
@@ -183,6 +183,38 @@
       font-weight:700;
       font-size: 12px;
     }
+
+    /* Controles touch */
+    #touch-controls {
+      display: none;
+      margin-top: 8px;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #touch-controls button {
+      min-width: 60px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 0 #000;
+      touch-action: manipulation;
+    }
+    #touch-controls button:active {
+      transform: translateY(1px);
+      box-shadow: 0 0 0 #000;
+    }
+
+    @media (max-width: 1080px) {
+      #game-row {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -253,16 +285,24 @@
       </aside>
     </div>
 
+    <div id="touch-controls">
+      <button id="btnLeft">◀︎</button>
+      <button id="btnRight">▶︎</button>
+      <button id="btnCast">🎣</button>
+      <button id="btnRestart">🔁</button>
+    </div>
+
     <div id="help">
       <p><strong>Controles</strong></p>
       <p>
-        Movimiento: <kbd>A</kbd>/<kbd>D</kbd> ·
-        Lanzar / pelea: <kbd>ESPACIO</kbd> ·
-        Empezar partida: <kbd>ESPACIO</kbd> o <kbd>ENTER</kbd>
+        Teclado: <kbd>A</kbd>/<kbd>D</kbd> mover ·
+        <kbd>ESPACIO</kbd> lanzar/pelea ·
+        <kbd>ENTER</kbd> empezar ·
+        <kbd>R</kbd> reiniciar
       </p>
       <p>
-        Compras: haz clic en los botones de la tienda cuando tengas suficientes monedas ·
-        Reiniciar tras perder: <kbd>R</kbd>
+        Celular: usa los botones de abajo (◀︎ ▶︎ 🎣 🔁) ·
+        Tienda: haz clic en los botones de la izquierda cuando tengas monedas.
       </p>
       <p>
         Si entras al top 5, escribe tus <strong>iniciales</strong> (3 letras) como en los arcades 🎮
@@ -285,8 +325,14 @@
   const btnLine = document.getElementById('btnLine');
   const btnRare = document.getElementById('btnRare');
 
+  const touchControls = document.getElementById('touch-controls');
+  const btnLeft = document.getElementById('btnLeft');
+  const btnRight = document.getElementById('btnRight');
+  const btnCast = document.getElementById('btnCast');
+  const btnRestart = document.getElementById('btnRestart');
+
   const W = cnv.width, H = cnv.height;
-  const surfaceY = 110; // línea de agua
+  const surfaceY = 160; // línea de agua
 
   // Estado del juego
   let boatX, boatSpeed;
@@ -298,22 +344,86 @@
   let gameStarted = false;
 
   // Metajuego: top 5
-  let highscores = []; // [{name, score}]
+  let highscores = [];
   let coins = 0;
 
-  // Nombre de récord (tipo arcade)
+  // Nombre de récord
   let enteringName = false;
   let initials = '';
-  let pendingScore = 0; // score que se va a guardar en el top 5
+  let pendingScore = 0;
 
   // Mejoras
-  let reelPower = 4;      // cuánto sube el anzuelo por pulsación
-  let lineStrength = 0;   // reduce el tirón del pez (0-90 aprox)
-  let rareChance = 0;     // probabilidad extra de peces grandes (0-0.5)
+  let reelPower = 4;
+  let lineStrength = 0;
+  let rareChance = 0;
 
   // Peces
   const fishes = [];
-  const fishColors = ['#a9d6e5','#89c2d9','#61a5c2','#468faf','#2c7da0'];
+  const fishColorsNormal = ['#89c2d9','#61a5c2','#468faf','#2c7da0'];
+  const fishColorsSlim   = ['#38bdf8','#0ea5e9'];
+  const fishColorsRound  = ['#0f766e','#14b8a6'];
+  const fishColorsJelly  = ['#a855f7','#6366f1'];
+
+  // Cielo
+  const clouds = [];
+  function spawnCloud() {
+    const y = 40 + Math.random() * 60;
+    const speed = 0.2 + Math.random() * 0.4;
+    const width = 80 + Math.random() * 80;
+    clouds.push({
+      x: Math.random() * W,
+      y,
+      w: width,
+      h: 24 + Math.random() * 8,
+      speed
+    });
+  }
+
+  // Helpers colores día/noche
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function hexToRgb(h){
+    const n = parseInt(h.slice(1),16);
+    return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+  }
+  function lerpColor(c1,c2,t){
+    const a = hexToRgb(c1), b = hexToRgb(c2);
+    const r = Math.round(lerp(a.r,b.r,t));
+    const g = Math.round(lerp(a.g,b.g,t));
+    const b2 = Math.round(lerp(a.b,b.b,t));
+    return `rgb(${r},${g},${b2})`;
+  }
+
+  // ---------- Audio 8-bit ----------
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  function playBeep(freq = 440, duration = 0.08, type = 'square', volume = 0.08) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = volume;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    osc.start(now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.stop(now + duration + 0.02);
+  }
+
+  function s_cast()       { playBeep(880, 0.08, 'square'); }
+  function s_hook()       { playBeep(660, 0.08, 'square'); }
+  function s_catchSmall() { playBeep(900, 0.08, 'square'); playBeep(1200, 0.1, 'triangle', 0.06); }
+  function s_catchMed()   { playBeep(700, 0.08, 'square'); playBeep(1050, 0.1, 'square'); playBeep(1350, 0.12, 'triangle', 0.06); }
+  function s_catchBig()   { playBeep(500, 0.1, 'square'); playBeep(800, 0.12, 'square'); playBeep(1400, 0.14, 'triangle', 0.07); }
+  function s_breakLine()  { playBeep(260, 0.12, 'sawtooth'); }
+  function s_gameOver()   { playBeep(220, 0.25, 'square', 0.07); }
+  function s_buy()        { playBeep(780, 0.06, 'triangle', 0.06); }
 
   // ---------- Highscores ----------
   function renderHighscores() {
@@ -368,9 +478,8 @@
     renderHighscores();
   }
 
-  // ---------- Tienda (botones) ----------
+  // ---------- Tienda ----------
   function updateShopUI() {
-    // Desactivar botones si no alcance de monedas
     btnReel.disabled = coins < 20;
     btnLine.disabled = coins < 30;
     btnRare.disabled = coins < 40;
@@ -378,50 +487,107 @@
 
   function buyUpgrade(type) {
     if (gameOver || enteringName) return;
-    if (inFight) return; // opcional: no comprar en plena pelea
+    if (inFight) return;
+
+    let purchased = false;
 
     if (type === 'reel' && coins >= 20) {
       coins -= 20;
       reelPower += 1;
+      purchased = true;
     } else if (type === 'line' && coins >= 30) {
       coins -= 30;
       lineStrength = Math.min(90, lineStrength + 10);
+      purchased = true;
     } else if (type === 'rare' && coins >= 40) {
       coins -= 40;
       rareChance = Math.min(0.5, rareChance + 0.1);
-    } else {
-      return;
+      purchased = true;
     }
 
-    coinsEl.textContent = coins;
-    updateShopUI();
+    if (purchased) {
+      coinsEl.textContent = coins;
+      updateShopUI();
+      s_buy();
+    }
   }
 
-  btnReel.addEventListener('click', () => buyUpgrade('reel'));
-  btnLine.addEventListener('click', () => buyUpgrade('line'));
-  btnRare.addEventListener('click', () => buyUpgrade('rare'));
+  btnReel.addEventListener('click', () => { initAudio(); buyUpgrade('reel'); });
+  btnLine.addEventListener('click', () => { initAudio(); buyUpgrade('line'); });
+  btnRare.addEventListener('click', () => { initAudio(); buyUpgrade('rare'); });
 
-  // ---------- Juego ----------
-  function spawnFish() {
-    let size;
+  // ---------- Tipos de peces ----------
+  function randomFishType() {
     const r = Math.random();
-    if (r < rareChance) {
-      size = 34; // forzar grande
-    } else {
-      size = Math.random() < 0.5 ? 16 : Math.random() < 0.8 ? 24 : 34; // 3 tamaños
+    // rareChance empuja más a dorados
+    const goldenBoost = rareChance;
+    if (r < 0.04 + goldenBoost) return 'golden';
+    if (r < 0.12) return 'jelly';
+    if (r < 0.35) return 'slim';
+    if (r < 0.65) return 'round';
+    return 'normal';
+  }
+
+  function typeMultiplier(type) {
+    switch(type){
+      case 'golden': return 3;
+      case 'round':  return 2;
+      case 'jelly':  return 2;
+      case 'slim':   return 1.5;
+      default:       return 1;
     }
-    const difficulty = size === 16 ? 35 : size === 24 ? 55 : 75; // más grande = más difícil
-    const speed = (size === 34 ? 1.2 : size === 24 ? 1.6 : 2.1) * (0.8 + Math.random()*0.6);
+  }
+
+  function spawnFish() {
+    let type = randomFishType();
+    let size, difficulty, speed, color;
     const dir = Math.random() < 0.5 ? -1 : 1;
     const x = dir === 1 ? -40 : W + 40;
-    const y = surfaceY + 40 + Math.random() * (H - surfaceY - 90);
-    const color = fishColors[Math.floor(Math.random()*fishColors.length)];
-    fishes.push({x,y,dir,speed,size,color,difficulty});
+    const yBase = surfaceY + 40 + Math.random() * (H - surfaceY - 90);
+
+    if (type === 'slim') {
+      size = 18;
+      difficulty = 45;
+      speed = 2.3 * (0.8 + Math.random()*0.6);
+      color = fishColorsSlim[Math.floor(Math.random()*fishColorsSlim.length)];
+    } else if (type === 'round') {
+      size = 26;
+      difficulty = 60;
+      speed = 1.6 * (0.8 + Math.random()*0.6);
+      color = fishColorsRound[Math.floor(Math.random()*fishColorsRound.length)];
+    } else if (type === 'golden') {
+      size = 24;
+      difficulty = 65;
+      speed = 1.6 * (0.8 + Math.random()*0.6);
+      color = '#facc15';
+    } else if (type === 'jelly') {
+      size = 22;
+      difficulty = 55;
+      speed = 1.1 * (0.8 + Math.random()*0.6);
+      color = fishColorsJelly[Math.floor(Math.random()*fishColorsJelly.length)];
+    } else {
+      // normal
+      // aún respetamos rareChance para que existan peces grandes
+      if (Math.random() < rareChance) {
+        size = 34;
+      } else {
+        size = Math.random() < 0.5 ? 16 : Math.random() < 0.8 ? 24 : 34;
+      }
+      difficulty = size === 16 ? 35 : size === 24 ? 55 : 75;
+      speed = (size === 34 ? 1.2 : size === 24 ? 1.6 : 2.1) * (0.8 + Math.random()*0.6);
+      color = fishColorsNormal[Math.floor(Math.random()*fishColorsNormal.length)];
+    }
+
+    const y = yBase;
+    fishes.push({x,y,dir,speed,size,color,difficulty,type});
   }
 
   function resetGameState(){
     fishes.length = 0;
     for (let i=0;i<10;i++) spawnFish();
+
+    clouds.length = 0;
+    for (let i=0;i<5;i++) spawnCloud();
 
     boatX = W/2; boatSpeed = 4;
     hookX = boatX; hookY = surfaceY + 18;
@@ -460,7 +626,8 @@
     gameOver = true;
     if (timerId) { clearInterval(timerId); timerId = null; }
 
-    // ¿Entra al top 5?
+    s_gameOver();
+
     if (qualifiesForTop5(score)) {
       enteringName = true;
       initials = '';
@@ -468,39 +635,41 @@
     }
   }
 
-  // Input
+  // Input teclado
   const keys = new Set();
 
   addEventListener('keydown', (e)=>{
     const k = e.key;
     if (['ArrowUp','ArrowDown',' '].includes(k)) e.preventDefault();
 
-    // Mientras se capturan iniciales de top 5
+    if (!audioCtx && (k === ' ' || k === 'Enter')) {
+      initAudio();
+    }
+
     if (enteringName) {
       handleInitialsInput(e);
       return;
     }
 
-    // Espacio: pelea / lanzar / recoger / empezar. Ignora autorepetición.
     if (k === ' '){
       if (e.repeat) return;
       if (!gameStarted && !gameOver) {
         gameStarted = true;
         startTimer();
+        s_cast();
         return;
       }
       handleSpace();
       return;
     }
 
-    // ENTER también puede iniciar el juego
     if (k === 'Enter' && !gameStarted && !gameOver){
       gameStarted = true;
       startTimer();
+      s_cast();
       return;
     }
 
-    // Reiniciar al final (solo si ya no estamos poniendo nombre)
     if (k.toLowerCase() === 'r' && gameOver && !enteringName){
       resetGameState();
       startTimer();
@@ -537,18 +706,16 @@
     if (gameOver) return;
 
     if (!casting && !retrieving && !inFight && !hookedFish) {
-      // Lanzar: fijar X y empezar a bajar en línea recta
       hookX = boatX; casting = true;
+      s_cast();
       return;
     }
 
     if (inFight && hookedFish) {
-      // Pulsación individual para pelea: sube barra y anzuelo
       fightValue = Math.min(100, fightValue + 10);
       fightBar.value = fightValue;
-      hookY = Math.max(surfaceY + 18, hookY - reelPower); // usa mejora de carrete
+      hookY = Math.max(surfaceY + 18, hookY - reelPower);
 
-      // Si el anzuelo llega casi a la superficie mientras peleas, cuenta como captura segura
       if (hookY <= surfaceY + 22) {
         captureFish();
         return;
@@ -557,7 +724,6 @@
     }
 
     if (!inFight && !hookedFish && (casting || retrieving)) {
-      // Forzar recogida si estás bajando/subiendo sin pez
       retrieving = true; casting = false;
     }
   }
@@ -565,11 +731,15 @@
   function captureFish(){
     if (!hookedFish) return;
     const size = hookedFish.size;
-    let gainedScore = 1;
-    let gainedCoins = 1;
+    let baseScore = 1;
+    let baseCoins = 1;
 
-    if (size >= 34) { gainedScore = 3; gainedCoins = 5; }
-    else if (size >= 24) { gainedScore = 2; gainedCoins = 3; }
+    if (size >= 34) { baseScore = 3; baseCoins = 5; }
+    else if (size >= 24) { baseScore = 2; baseCoins = 3; }
+
+    const mult = typeMultiplier(hookedFish.type || 'normal');
+    const gainedScore = Math.round(baseScore * mult);
+    const gainedCoins = Math.round(baseCoins * mult);
 
     score += gainedScore;
     coins += gainedCoins;
@@ -581,27 +751,39 @@
     const idx = fishes.indexOf(hookedFish); if (idx>=0) fishes.splice(idx,1);
     spawnFish();
 
+    if (size >= 34) s_catchBig();
+    else if (size >= 24) s_catchMed();
+    else s_catchSmall();
+
     inFight = false;
     hookedFish = null;
     fightWrap.style.display = 'none';
-    retrieving = true; // recoge tras capturar
+    retrieving = true;
   }
 
   function update() {
-    if (!gameStarted || gameOver) return;
+    if (!gameStarted || gameOver) {
+      for (const c of clouds) {
+        c.x += c.speed;
+        if (c.x - c.w > W + 40) {
+          c.x = -c.w - 40;
+          c.y = 40 + Math.random() * 60;
+          c.speed = 0.2 + Math.random() * 0.4;
+        }
+      }
+      return;
+    }
 
-    // Mover barca (no durante pelea)
     if (!casting && !retrieving && !inFight) {
       if (keys.has('a')) boatX -= boatSpeed;
       if (keys.has('d')) boatX += boatSpeed;
       boatX = Math.max(60, Math.min(W-60, boatX));
-      hookX = boatX; // cuando está en reposo, el anzuelo sigue a la barca
+      hookX = boatX;
       hookY = surfaceY + 18;
     }
 
-    // Movimiento del anzuelo (solo si no hay pelea)
     if (casting && !inFight) {
-      hookY += 4.2; // baja en línea recta
+      hookY += 4.2;
       if (hookY > lineLenMax) { casting = false; retrieving = true; }
     }
     if (retrieving && !inFight) {
@@ -609,60 +791,111 @@
       if (hookY <= surfaceY + 18) { retrieving = false; }
     }
 
-    // Peces sueltos
     for (const f of fishes) {
-      if (f === hookedFish && inFight) continue; // el pez enganchado lo movemos aparte
+      if (f === hookedFish && inFight) continue;
       f.x += f.speed * f.dir;
       if (f.dir === 1 && f.x > W+50) { f.dir = -1; f.y = surfaceY + 40 + Math.random()*(H-surfaceY-90); }
       if (f.dir === -1 && f.x < -50) { f.dir = 1; f.y = surfaceY + 40 + Math.random()*(H-surfaceY-90); }
     }
 
-    // Colisión anzuelo-pez → iniciar pelea
     if (!inFight && casting && !hookedFish) {
       for (const f of fishes) {
         if (Math.abs(f.x - hookX) < f.size && Math.abs(f.y - hookY) < f.size) {
           hookedFish = f; inFight = true; casting = false; retrieving = false;
-          fightValue = 35; // punto de partida intermedio
+          fightValue = 35;
           fightBar.value = fightValue; fightWrap.style.display = 'inline-flex';
+          s_hook();
           break;
         }
       }
     }
 
-    // Minijuego de pelea
     if (inFight && hookedFish) {
-      // El pez jala en contra: su dificultad define cuánto baja la barra
-      const pull = hookedFish.difficulty * 0.04; // 1.4..3.2 aprox
-      const resistFactor = 1 - (lineStrength / 100); // más línea -> menos daño
+      const pull = hookedFish.difficulty * 0.04;
+      const resistFactor = 1 - (lineStrength / 100);
       fightValue = Math.max(0, fightValue - pull * 0.2 * resistFactor);
       fightBar.value = fightValue;
 
-      // El pez se ancla al anzuelo y se agita para simular tensión
       const wiggle = Math.sin(Date.now()*0.02) * 4;
       hookedFish.x = hookX + wiggle;
       hookedFish.y = hookY + 20;
 
-      // Si la pelea dura mucho y vas perdiendo, el anzuelo se hunde ligeramente
       if (fightValue < 40 && hookY < lineLenMax) {
         hookY += 0.3;
       }
 
-      // Terminar condiciones
       if (fightValue <= 0) {
-        // Se rompe la línea
         lives--; livesEl.textContent = lives;
         inFight = false;
         fightWrap.style.display = 'none';
         if (lives <= 0) endGame();
         hookedFish = null;
-        retrieving = true; // recoge tras romper
+        retrieving = true;
+        s_breakLine();
+      }
+    }
+
+    for (const c of clouds) {
+      c.x += c.speed;
+      if (c.x - c.w > W + 40) {
+        c.x = -c.w - 40;
+        c.y = 40 + Math.random() * 60;
+        c.speed = 0.2 + Math.random() * 0.4;
       }
     }
   }
 
+  function drawSky(){
+    const t = Date.now() * 0.00003;
+    const phase = (Math.sin(t) + 1) / 2;
+
+    const topNight = '#020617';
+    const midNight = '#0f172a';
+    const botNight = '#1d4ed8';
+
+    const topDay = '#0f172a';
+    const midDay = '#1d4ed8';
+    const botDay = '#38bdf8';
+
+    const top = lerpColor(topNight, topDay, phase);
+    const mid = lerpColor(midNight, midDay, phase);
+    const bot = lerpColor(botNight, botDay, phase);
+
+    const skyGrad = ctx.createLinearGradient(0,0,0,surfaceY);
+    skyGrad.addColorStop(0, top);
+    skyGrad.addColorStop(0.5, mid);
+    skyGrad.addColorStop(1, bot);
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0,0,W,surfaceY);
+
+    const sunX = W * 0.15 + Math.sin(t*1.2) * 40;
+    const sunY = surfaceY * (0.2 + 0.2 * Math.cos(t*1.1));
+    const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 40);
+    const sunColor = phase > 0.5 ? '#fde68a' : '#bfdbfe';
+    sunGrad.addColorStop(0, sunColor);
+    sunGrad.addColorStop(1, 'rgba(252,211,77,0)');
+    ctx.fillStyle = sunGrad;
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 40, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(241,245,249,' + (0.5 + 0.4*phase) + ')';
+    for (const c of clouds) {
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, c.w * 0.5, c.h * 0.5, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
   function drawWater(){
-    // Olas superficiales
-    ctx.fillStyle = '#0ea5e9';
+    const waterGrad = ctx.createLinearGradient(0,surfaceY,0,H);
+    waterGrad.addColorStop(0, '#0ea5e9');
+    waterGrad.addColorStop(0.4, '#0369a1');
+    waterGrad.addColorStop(1, '#020617');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(0,surfaceY,W,H-surfaceY);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
     for (let x=0; x<W; x+=24) {
       ctx.beginPath();
       const y = surfaceY + Math.sin((x+Date.now()*0.002)*0.06)*2;
@@ -672,23 +905,19 @@
   }
 
   function drawBoat(){
-    // Barca simple
     ctx.save();
     ctx.translate(boatX, surfaceY-6);
     ctx.fillStyle = '#f97316';
     ctx.beginPath();
     ctx.moveTo(-40,0); ctx.lineTo(40,0); ctx.lineTo(22,14); ctx.lineTo(-22,14); ctx.closePath(); ctx.fill();
-    // mástil/cabina
     ctx.fillStyle = '#ffe4b5';
     ctx.fillRect(-3,-18,6,18);
     ctx.restore();
   }
 
   function drawLineAndHook(){
-    // Línea
     ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 2; ctx.beginPath();
     ctx.moveTo(boatX, surfaceY-6); ctx.lineTo(hookX, hookY-8); ctx.stroke();
-    // Anzuelo
     ctx.save();
     ctx.translate(hookX, hookY);
     ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3; ctx.beginPath();
@@ -699,21 +928,77 @@
 
   function drawFishes(){
     for (const f of fishes) {
-      ctx.save(); ctx.translate(f.x, f.y); ctx.scale(f.dir,1);
-      // cuerpo
-      ctx.fillStyle = f.color; ctx.beginPath();
-      ctx.ellipse(0,0,f.size, f.size*0.6, 0, 0, Math.PI*2); ctx.fill();
-      // cola
-      ctx.beginPath(); ctx.moveTo(-f.size,0); ctx.lineTo(-f.size-8,6); ctx.lineTo(-f.size-8,-6); ctx.closePath(); ctx.fill();
-      // ojo
-      ctx.fillStyle = '#020617'; ctx.beginPath(); ctx.arc(f.size*0.4,-2,2.5,0,Math.PI*2); ctx.fill();
+      // Medusa
+      if (f.type === 'jelly') {
+        ctx.save();
+        ctx.translate(f.x, f.y);
+        ctx.fillStyle = f.color;
+        ctx.beginPath();
+        ctx.ellipse(0,0,f.size, f.size*0.7, 0, Math.PI, 0, true);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-f.size*0.6,0);
+        ctx.lineTo(-f.size*0.4,f.size*0.9);
+        ctx.moveTo(-f.size*0.2,0);
+        ctx.lineTo(-f.size*0.1,f.size);
+        ctx.moveTo(0,0);
+        ctx.lineTo(0.1*f.size,f.size*0.9);
+        ctx.moveTo(f.size*0.2,0);
+        ctx.lineTo(f.size*0.3,f.size*0.9);
+        ctx.strokeStyle = f.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+
+      ctx.save();
+      ctx.translate(f.x, f.y);
+      ctx.scale(f.dir,1);
+
+      let bodyW = f.size;
+      let bodyH = f.size*0.6;
+
+      if (f.type === 'slim') {
+        bodyW = f.size + 6;
+        bodyH = f.size*0.4;
+      } else if (f.type === 'round') {
+        bodyH = f.size*0.9;
+      } else if (f.type === 'golden') {
+        bodyH = f.size*0.7;
+      }
+
+      ctx.fillStyle = f.color;
+      ctx.beginPath();
+      ctx.ellipse(0,0,bodyW, bodyH, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      if (f.type === 'golden' || f.type === 'round') {
+        ctx.fillStyle = 'rgba(253,224,71,0.4)';
+        ctx.beginPath();
+        ctx.ellipse(-bodyW*0.1,-bodyH*0.3,bodyW*0.4, bodyH*0.3, 0,0,Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(-bodyW,0);
+      ctx.lineTo(-bodyW-8,6);
+      ctx.lineTo(-bodyW-8,-6);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#020617';
+      ctx.beginPath();
+      ctx.arc(bodyW*0.4,-2,2.5,0,Math.PI*2);
+      ctx.fill();
+
       ctx.restore();
     }
   }
 
   function drawStartScreen(){
     if (gameStarted || gameOver) return;
-    ctx.fillStyle = 'rgba(15,23,42,0.75)';
+    ctx.fillStyle = 'rgba(15,23,42,0.65)';
     ctx.fillRect(0,0,W,H);
     ctx.textAlign = 'center';
 
@@ -723,7 +1008,7 @@
 
     ctx.fillStyle = '#e5e7eb';
     ctx.font = '18px system-ui';
-    ctx.fillText('Pulsa ESPACIO o ENTER para empezar', W/2, H/2 + 8);
+    ctx.fillText('Pulsa ESPACIO, ENTER o 🎣 para empezar', W/2, H/2 + 8);
     ctx.font = '14px system-ui';
     ctx.fillText('Atrapa peces, mejora tu equipo y entra al top 5.', W/2, H/2 + 40);
   }
@@ -760,30 +1045,91 @@
     ctx.font = 'bold 20px system-ui';
     ctx.fillText(`Puntos: ${score}  ·  Mejor: ${bestText}`, W/2, H/2+18);
     ctx.font = '16px system-ui';
-    ctx.fillText('Pulsa R para reiniciar', W/2, H/2+48);
+    ctx.fillText('Pulsa R o 🔁 para reiniciar', W/2, H/2+48);
+  }
+
+  function drawFightHint(){
+    if (inFight && hookedFish && !gameOver && !enteringName) {
+      ctx.fillStyle = 'rgba(15,23,42,.20)';
+      ctx.fillRect(0,0,W,90);
+      ctx.fillStyle = '#e5e7eb'; ctx.font = '18px system-ui'; ctx.textAlign = 'center';
+      ctx.fillText('¡Pulsa ESPACIO o 🎣 repetidamente para ganar la pelea!', W/2, 55);
+    }
   }
 
   function drawUI(){
     drawStartScreen();
     drawNameEntry();
     drawGameOver();
-
-    if (inFight && hookedFish && !gameOver && !enteringName) {
-      ctx.fillStyle = 'rgba(15,23,42,.25)'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle = '#e5e7eb'; ctx.font = '18px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('¡Pulsa ESPACIO repetidamente para ganar la pelea y subir el pez!', W/2, 360);
-    }
+    drawFightHint();
   }
 
   function loop(){
     update();
     ctx.clearRect(0,0,W,H);
+    drawSky();
     drawWater();
     drawFishes();
     drawBoat();
     drawLineAndHook();
     drawUI();
     requestAnimationFrame(loop);
+  }
+
+  // --------- Controles touch ----------
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouch && touchControls) {
+    touchControls.style.display = 'flex';
+  }
+
+  function addHoldButton(btn, key){
+    const down = (e) => {
+      e.preventDefault();
+      keys.add(key);
+    };
+    const up = (e) => {
+      e.preventDefault();
+      keys.delete(key);
+    };
+    btn.addEventListener('touchstart', down);
+    btn.addEventListener('touchend', up);
+    btn.addEventListener('touchcancel', up);
+    btn.addEventListener('mousedown', down);
+    btn.addEventListener('mouseup', up);
+    btn.addEventListener('mouseleave', up);
+  }
+
+  if (btnLeft && btnRight) {
+    addHoldButton(btnLeft, 'a');
+    addHoldButton(btnRight, 'd');
+  }
+
+  if (btnCast) {
+    const tapCast = (e) => {
+      e.preventDefault();
+      if (!audioCtx) initAudio();
+      if (!gameStarted && !gameOver) {
+        gameStarted = true;
+        startTimer();
+        s_cast();
+        return;
+      }
+      handleSpace();
+    };
+    btnCast.addEventListener('click', tapCast);
+    btnCast.addEventListener('touchstart', tapCast);
+  }
+
+  if (btnRestart) {
+    const tapRestart = (e) => {
+      e.preventDefault();
+      if (gameOver && !enteringName) {
+        resetGameState();
+        startTimer();
+      }
+    };
+    btnRestart.addEventListener('click', tapRestart);
+    btnRestart.addEventListener('touchstart', tapRestart);
   }
 
   // Arranque inicial
