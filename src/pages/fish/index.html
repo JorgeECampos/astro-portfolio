@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesca Retro – Prototipo</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #020617;
+      font-family: system-ui, Segoe UI, Roboto, Arial;
+      color: #e0e6ef;
+    }
+    #wrap {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #hud {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-weight: 600;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .pill {
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: #020617;
+      box-shadow: inset 0 0 0 1px #1e293b;
+      font-size: 13px;
+    }
+
+    #game-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    canvas {
+      background: radial-gradient(circle at top, #1d4ed8 0%, #020617 55%, #000 100%);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.6);
+    }
+
+    /* Panel tienda izquierda */
+    #shop-panel {
+      width: 230px;
+      background:
+        linear-gradient(135deg, rgba(148, 91, 46, 0.32), rgba(80, 48, 22, 0.45)),
+        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='%2329241f'/%3E%3Cpath d='M0 20h40M20 0v40' stroke='%23382616' stroke-width='2'/%3E%3C/svg%3E");
+      background-size: cover;
+      border-radius: 14px;
+      box-shadow: 0 0 0 1px #1e293b, 0 10px 20px rgba(0,0,0,.6);
+      padding: 10px 12px;
+      box-sizing: border-box;
+      font-size: 13px;
+      color: #fef9c3;
+    }
+    #shop-panel h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #shop-panel small {
+      font-size: 11px;
+      opacity: .8;
+    }
+    .upgrade-card {
+      background: rgba(15,23,42,0.8);
+      border-radius: 10px;
+      padding: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.9);
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .upgrade-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: radial-gradient(circle at 30% 20%, #fbbf24, #b45309);
+    }
+    .upgrade-info h4 {
+      margin: 0;
+      font-size: 13px;
+    }
+    .upgrade-info p {
+      margin: 2px 0 4px 0;
+      font-size: 11px;
+      opacity: .9;
+    }
+    .upgrade-info .cost {
+      font-size: 11px;
+      opacity: .85;
+      margin-bottom: 4px;
+    }
+    .upgrade-info button {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      box-shadow: 0 1px 0 rgba(0,0,0,.6);
+      transition: transform 0.05s, box-shadow 0.05s, opacity 0.15s;
+    }
+    .upgrade-info button:active {
+      transform: translateY(1px);
+      box-shadow: 0 0 0 rgba(0,0,0,0.6);
+    }
+    .upgrade-info button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      background: #4b5563;
+      color: #e5e7eb;
+    }
+
+    /* Panel highscores derecha */
+    #highscores-panel {
+      width: 190px;
+      background: #020617;
+      border-radius: 14px;
+      box-shadow: 0 0 0 1px #1e293b, 0 10px 20px rgba(0,0,0,.6);
+      padding: 10px 12px;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+    #highscores-panel h3 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #highscores-panel ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    #highscores-panel li {
+      margin: 2px 0;
+      font-family: "Consolas", "JetBrains Mono", monospace;
+      letter-spacing: 1px;
+    }
+
+    #help {
+      opacity: .9;
+      font-size: 13px;
+      text-align: center;
+      max-width: 900px;
+      line-height: 1.5;
+    }
+
+    progress {
+      width: 160px;
+      height: 16px;
+      accent-color: #a855f7;
+    }
+    kbd {
+      background:#020617;
+      border:1px solid #334155;
+      border-bottom-width:2px;
+      padding:2px 6px;
+      border-radius:6px;
+      font-weight:700;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="hud">
+      <div class="pill">⏱️ Tiempo: <span id="time">360</span>s</div>
+      <div class="pill">❤️ Vidas: <span id="lives">3</span></div>
+      <div class="pill">🐟 Puntos: <span id="score">0</span></div>
+      <div class="pill">💰 Monedas: <span id="coins">0</span></div>
+      <div class="pill" id="fightBox" style="display:none">🎣 Pelea: <progress id="fight" value="0" max="100"></progress></div>
+    </div>
+
+    <div id="game-row">
+      <!-- TIENDA A LA IZQUIERDA -->
+      <aside id="shop-panel">
+        <h3>
+          <span>🛒 Tienda</span>
+          <small>Haz clic para comprar</small>
+        </h3>
+
+        <div class="upgrade-card">
+          <div class="upgrade-icon">🧵</div>
+          <div class="upgrade-info">
+            <h4>Mejor carrete</h4>
+            <p>Sube el anzuelo más rápido en cada pulsación.</p>
+            <div class="cost">Costo: 20 monedas</div>
+            <button id="btnReel">Comprar</button>
+          </div>
+        </div>
+
+        <div class="upgrade-card">
+          <div class="upgrade-icon" style="background:radial-gradient(circle at 30% 20%, #e5e7eb,#6b7280);">🪢</div>
+          <div class="upgrade-info">
+            <h4>Línea reforzada</h4>
+            <p>El pez jala menos la barra, se rompe menos.</p>
+            <div class="cost">Costo: 30 monedas</div>
+            <button id="btnLine">Comprar</button>
+          </div>
+        </div>
+
+        <div class="upgrade-card">
+          <div class="upgrade-icon" style="background:radial-gradient(circle at 30% 20%, #22c55e,#166534);">🐟</div>
+          <div class="upgrade-info">
+            <h4>Más peces grandes</h4>
+            <p>Aumenta la probabilidad de peces grandes.</p>
+            <div class="cost">Costo: 40 monedas</div>
+            <button id="btnRare">Comprar</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- JUEGO EN EL CENTRO -->
+      <canvas id="game" width="900" height="520"></canvas>
+
+      <!-- TOP 5 A LA DERECHA -->
+      <aside id="highscores-panel">
+        <h3>
+          <span>🏆 Mejores 5</span>
+          <span style="font-size:11px;opacity:.8;">(local)</span>
+        </h3>
+        <ol id="highscore-list">
+          <li>--- — 0</li>
+          <li>--- — 0</li>
+          <li>--- — 0</li>
+          <li>--- — 0</li>
+          <li>--- — 0</li>
+        </ol>
+      </aside>
+    </div>
+
+    <div id="help">
+      <p><strong>Controles</strong></p>
+      <p>
+        Movimiento: <kbd>A</kbd>/<kbd>D</kbd> ·
+        Lanzar / pelea: <kbd>ESPACIO</kbd> ·
+        Empezar partida: <kbd>ESPACIO</kbd> o <kbd>ENTER</kbd>
+      </p>
+      <p>
+        Compras: haz clic en los botones de la tienda cuando tengas suficientes monedas ·
+        Reiniciar tras perder: <kbd>R</kbd>
+      </p>
+      <p>
+        Si entras al top 5, escribe tus <strong>iniciales</strong> (3 letras) como en los arcades 🎮
+      </p>
+    </div>
+  </div>
+
+  <script>
+  const cnv = document.getElementById('game');
+  const ctx = cnv.getContext('2d');
+  const timeEl = document.getElementById('time');
+  const livesEl = document.getElementById('lives');
+  const scoreEl = document.getElementById('score');
+  const coinsEl = document.getElementById('coins');
+  const fightWrap = document.getElementById('fightBox');
+  const fightBar = document.getElementById('fight');
+  const highscoreListEl = document.getElementById('highscore-list');
+
+  const btnReel = document.getElementById('btnReel');
+  const btnLine = document.getElementById('btnLine');
+  const btnRare = document.getElementById('btnRare');
+
+  const W = cnv.width, H = cnv.height;
+  const surfaceY = 110; // línea de agua
+
+  // Estado del juego
+  let boatX, boatSpeed;
+  let hookX, hookY, lineLenMax;
+  let casting, retrieving;
+  let hookedFish, inFight, fightValue;
+  let score, lives, timeLeft, gameOver;
+  let timerId = null;
+  let gameStarted = false;
+
+  // Metajuego: top 5
+  let highscores = []; // [{name, score}]
+  let coins = 0;
+
+  // Nombre de récord (tipo arcade)
+  let enteringName = false;
+  let initials = '';
+  let pendingScore = 0; // score que se va a guardar en el top 5
+
+  // Mejoras
+  let reelPower = 4;      // cuánto sube el anzuelo por pulsación
+  let lineStrength = 0;   // reduce el tirón del pez (0-90 aprox)
+  let rareChance = 0;     // probabilidad extra de peces grandes (0-0.5)
+
+  // Peces
+  const fishes = [];
+  const fishColors = ['#a9d6e5','#89c2d9','#61a5c2','#468faf','#2c7da0'];
+
+  // ---------- Highscores ----------
+  function renderHighscores() {
+    highscoreListEl.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const li = document.createElement('li');
+      if (i < highscores.length) {
+        const h = highscores[i];
+        const name = (h.name || '---').padEnd(3, ' ').slice(0,3);
+        li.textContent = `${name} — ${h.score}`;
+      } else {
+        li.textContent = '--- — 0';
+      }
+      highscoreListEl.appendChild(li);
+    }
+  }
+
+  function loadHighscores() {
+    try {
+      const stored = localStorage.getItem('highscores');
+      if (stored) {
+        const arr = JSON.parse(stored);
+        if (Array.isArray(arr)) {
+          highscores = arr
+            .filter(x => typeof x.score === 'number' && typeof x.name === 'string')
+            .sort((a,b) => b.score - a.score)
+            .slice(0,5);
+        }
+      }
+    } catch (e) {}
+    renderHighscores();
+  }
+
+  function saveHighscores() {
+    try {
+      localStorage.setItem('highscores', JSON.stringify(highscores));
+    } catch (e) {}
+  }
+
+  function qualifiesForTop5(curScore) {
+    if (curScore <= 0) return false;
+    if (highscores.length < 5) return true;
+    const last = highscores[highscores.length - 1];
+    return curScore > last.score;
+  }
+
+  function insertHighscore(name, curScore) {
+    highscores.push({ name: name || '---', score: curScore });
+    highscores.sort((a,b) => b.score - a.score);
+    highscores = highscores.slice(0,5);
+    saveHighscores();
+    renderHighscores();
+  }
+
+  // ---------- Tienda (botones) ----------
+  function updateShopUI() {
+    // Desactivar botones si no alcance de monedas
+    btnReel.disabled = coins < 20;
+    btnLine.disabled = coins < 30;
+    btnRare.disabled = coins < 40;
+  }
+
+  function buyUpgrade(type) {
+    if (gameOver || enteringName) return;
+    if (inFight) return; // opcional: no comprar en plena pelea
+
+    if (type === 'reel' && coins >= 20) {
+      coins -= 20;
+      reelPower += 1;
+    } else if (type === 'line' && coins >= 30) {
+      coins -= 30;
+      lineStrength = Math.min(90, lineStrength + 10);
+    } else if (type === 'rare' && coins >= 40) {
+      coins -= 40;
+      rareChance = Math.min(0.5, rareChance + 0.1);
+    } else {
+      return;
+    }
+
+    coinsEl.textContent = coins;
+    updateShopUI();
+  }
+
+  btnReel.addEventListener('click', () => buyUpgrade('reel'));
+  btnLine.addEventListener('click', () => buyUpgrade('line'));
+  btnRare.addEventListener('click', () => buyUpgrade('rare'));
+
+  // ---------- Juego ----------
+  function spawnFish() {
+    let size;
+    const r = Math.random();
+    if (r < rareChance) {
+      size = 34; // forzar grande
+    } else {
+      size = Math.random() < 0.5 ? 16 : Math.random() < 0.8 ? 24 : 34; // 3 tamaños
+    }
+    const difficulty = size === 16 ? 35 : size === 24 ? 55 : 75; // más grande = más difícil
+    const speed = (size === 34 ? 1.2 : size === 24 ? 1.6 : 2.1) * (0.8 + Math.random()*0.6);
+    const dir = Math.random() < 0.5 ? -1 : 1;
+    const x = dir === 1 ? -40 : W + 40;
+    const y = surfaceY + 40 + Math.random() * (H - surfaceY - 90);
+    const color = fishColors[Math.floor(Math.random()*fishColors.length)];
+    fishes.push({x,y,dir,speed,size,color,difficulty});
+  }
+
+  function resetGameState(){
+    fishes.length = 0;
+    for (let i=0;i<10;i++) spawnFish();
+
+    boatX = W/2; boatSpeed = 4;
+    hookX = boatX; hookY = surfaceY + 18;
+    lineLenMax = H - 40;
+    casting = false;
+    retrieving = false;
+    hookedFish = null;
+    inFight = false;
+    fightValue = 0;
+    score = 0; lives = 3; timeLeft = 360; gameOver = false;
+    coins = 0;
+    gameStarted = false;
+    enteringName = false;
+    initials = '';
+    pendingScore = 0;
+
+    timeEl.textContent = timeLeft;
+    livesEl.textContent = lives;
+    scoreEl.textContent = score;
+    coinsEl.textContent = coins;
+    fightWrap.style.display = 'none';
+    fightBar.value = 0;
+    updateShopUI();
+  }
+
+  function startTimer(){
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(()=>{
+      if (!gameStarted || gameOver) return;
+      timeLeft--; timeEl.textContent = timeLeft;
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function endGame(){
+    gameOver = true;
+    if (timerId) { clearInterval(timerId); timerId = null; }
+
+    // ¿Entra al top 5?
+    if (qualifiesForTop5(score)) {
+      enteringName = true;
+      initials = '';
+      pendingScore = score;
+    }
+  }
+
+  // Input
+  const keys = new Set();
+
+  addEventListener('keydown', (e)=>{
+    const k = e.key;
+    if (['ArrowUp','ArrowDown',' '].includes(k)) e.preventDefault();
+
+    // Mientras se capturan iniciales de top 5
+    if (enteringName) {
+      handleInitialsInput(e);
+      return;
+    }
+
+    // Espacio: pelea / lanzar / recoger / empezar. Ignora autorepetición.
+    if (k === ' '){
+      if (e.repeat) return;
+      if (!gameStarted && !gameOver) {
+        gameStarted = true;
+        startTimer();
+        return;
+      }
+      handleSpace();
+      return;
+    }
+
+    // ENTER también puede iniciar el juego
+    if (k === 'Enter' && !gameStarted && !gameOver){
+      gameStarted = true;
+      startTimer();
+      return;
+    }
+
+    // Reiniciar al final (solo si ya no estamos poniendo nombre)
+    if (k.toLowerCase() === 'r' && gameOver && !enteringName){
+      resetGameState();
+      startTimer();
+      return;
+    }
+
+    keys.add(k.toLowerCase());
+  });
+
+  addEventListener('keyup', (e)=>{ keys.delete(e.key.toLowerCase()); });
+
+  function handleInitialsInput(e){
+    const k = e.key;
+    const isLetter = /^[a-zA-Z]$/.test(k);
+
+    if (isLetter && initials.length < 3){
+      initials += k.toUpperCase();
+      return;
+    }
+
+    if (k === 'Backspace'){
+      initials = initials.slice(0, -1);
+      return;
+    }
+
+    if (k === 'Enter' && initials.length > 0){
+      insertHighscore(initials, pendingScore);
+      enteringName = false;
+      return;
+    }
+  }
+
+  function handleSpace(){
+    if (gameOver) return;
+
+    if (!casting && !retrieving && !inFight && !hookedFish) {
+      // Lanzar: fijar X y empezar a bajar en línea recta
+      hookX = boatX; casting = true;
+      return;
+    }
+
+    if (inFight && hookedFish) {
+      // Pulsación individual para pelea: sube barra y anzuelo
+      fightValue = Math.min(100, fightValue + 10);
+      fightBar.value = fightValue;
+      hookY = Math.max(surfaceY + 18, hookY - reelPower); // usa mejora de carrete
+
+      // Si el anzuelo llega casi a la superficie mientras peleas, cuenta como captura segura
+      if (hookY <= surfaceY + 22) {
+        captureFish();
+        return;
+      }
+      return;
+    }
+
+    if (!inFight && !hookedFish && (casting || retrieving)) {
+      // Forzar recogida si estás bajando/subiendo sin pez
+      retrieving = true; casting = false;
+    }
+  }
+
+  function captureFish(){
+    if (!hookedFish) return;
+    const size = hookedFish.size;
+    let gainedScore = 1;
+    let gainedCoins = 1;
+
+    if (size >= 34) { gainedScore = 3; gainedCoins = 5; }
+    else if (size >= 24) { gainedScore = 2; gainedCoins = 3; }
+
+    score += gainedScore;
+    coins += gainedCoins;
+
+    scoreEl.textContent = score;
+    coinsEl.textContent = coins;
+    updateShopUI();
+
+    const idx = fishes.indexOf(hookedFish); if (idx>=0) fishes.splice(idx,1);
+    spawnFish();
+
+    inFight = false;
+    hookedFish = null;
+    fightWrap.style.display = 'none';
+    retrieving = true; // recoge tras capturar
+  }
+
+  function update() {
+    if (!gameStarted || gameOver) return;
+
+    // Mover barca (no durante pelea)
+    if (!casting && !retrieving && !inFight) {
+      if (keys.has('a')) boatX -= boatSpeed;
+      if (keys.has('d')) boatX += boatSpeed;
+      boatX = Math.max(60, Math.min(W-60, boatX));
+      hookX = boatX; // cuando está en reposo, el anzuelo sigue a la barca
+      hookY = surfaceY + 18;
+    }
+
+    // Movimiento del anzuelo (solo si no hay pelea)
+    if (casting && !inFight) {
+      hookY += 4.2; // baja en línea recta
+      if (hookY > lineLenMax) { casting = false; retrieving = true; }
+    }
+    if (retrieving && !inFight) {
+      hookY -= 5.0;
+      if (hookY <= surfaceY + 18) { retrieving = false; }
+    }
+
+    // Peces sueltos
+    for (const f of fishes) {
+      if (f === hookedFish && inFight) continue; // el pez enganchado lo movemos aparte
+      f.x += f.speed * f.dir;
+      if (f.dir === 1 && f.x > W+50) { f.dir = -1; f.y = surfaceY + 40 + Math.random()*(H-surfaceY-90); }
+      if (f.dir === -1 && f.x < -50) { f.dir = 1; f.y = surfaceY + 40 + Math.random()*(H-surfaceY-90); }
+    }
+
+    // Colisión anzuelo-pez → iniciar pelea
+    if (!inFight && casting && !hookedFish) {
+      for (const f of fishes) {
+        if (Math.abs(f.x - hookX) < f.size && Math.abs(f.y - hookY) < f.size) {
+          hookedFish = f; inFight = true; casting = false; retrieving = false;
+          fightValue = 35; // punto de partida intermedio
+          fightBar.value = fightValue; fightWrap.style.display = 'inline-flex';
+          break;
+        }
+      }
+    }
+
+    // Minijuego de pelea
+    if (inFight && hookedFish) {
+      // El pez jala en contra: su dificultad define cuánto baja la barra
+      const pull = hookedFish.difficulty * 0.04; // 1.4..3.2 aprox
+      const resistFactor = 1 - (lineStrength / 100); // más línea -> menos daño
+      fightValue = Math.max(0, fightValue - pull * 0.2 * resistFactor);
+      fightBar.value = fightValue;
+
+      // El pez se ancla al anzuelo y se agita para simular tensión
+      const wiggle = Math.sin(Date.now()*0.02) * 4;
+      hookedFish.x = hookX + wiggle;
+      hookedFish.y = hookY + 20;
+
+      // Si la pelea dura mucho y vas perdiendo, el anzuelo se hunde ligeramente
+      if (fightValue < 40 && hookY < lineLenMax) {
+        hookY += 0.3;
+      }
+
+      // Terminar condiciones
+      if (fightValue <= 0) {
+        // Se rompe la línea
+        lives--; livesEl.textContent = lives;
+        inFight = false;
+        fightWrap.style.display = 'none';
+        if (lives <= 0) endGame();
+        hookedFish = null;
+        retrieving = true; // recoge tras romper
+      }
+    }
+  }
+
+  function drawWater(){
+    // Olas superficiales
+    ctx.fillStyle = '#0ea5e9';
+    for (let x=0; x<W; x+=24) {
+      ctx.beginPath();
+      const y = surfaceY + Math.sin((x+Date.now()*0.002)*0.06)*2;
+      ctx.ellipse(x+12, y, 18, 6, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function drawBoat(){
+    // Barca simple
+    ctx.save();
+    ctx.translate(boatX, surfaceY-6);
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.moveTo(-40,0); ctx.lineTo(40,0); ctx.lineTo(22,14); ctx.lineTo(-22,14); ctx.closePath(); ctx.fill();
+    // mástil/cabina
+    ctx.fillStyle = '#ffe4b5';
+    ctx.fillRect(-3,-18,6,18);
+    ctx.restore();
+  }
+
+  function drawLineAndHook(){
+    // Línea
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(boatX, surfaceY-6); ctx.lineTo(hookX, hookY-8); ctx.stroke();
+    // Anzuelo
+    ctx.save();
+    ctx.translate(hookX, hookY);
+    ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3; ctx.beginPath();
+    ctx.moveTo(0,-8); ctx.lineTo(0,6); ctx.arc(6,6,6,Math.PI,Math.PI*1.75);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawFishes(){
+    for (const f of fishes) {
+      ctx.save(); ctx.translate(f.x, f.y); ctx.scale(f.dir,1);
+      // cuerpo
+      ctx.fillStyle = f.color; ctx.beginPath();
+      ctx.ellipse(0,0,f.size, f.size*0.6, 0, 0, Math.PI*2); ctx.fill();
+      // cola
+      ctx.beginPath(); ctx.moveTo(-f.size,0); ctx.lineTo(-f.size-8,6); ctx.lineTo(-f.size-8,-6); ctx.closePath(); ctx.fill();
+      // ojo
+      ctx.fillStyle = '#020617'; ctx.beginPath(); ctx.arc(f.size*0.4,-2,2.5,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawStartScreen(){
+    if (gameStarted || gameOver) return;
+    ctx.fillStyle = 'rgba(15,23,42,0.75)';
+    ctx.fillRect(0,0,W,H);
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 46px system-ui';
+    ctx.fillText('PESCA RETRO', W/2, H/2 - 40);
+
+    ctx.fillStyle = '#e5e7eb';
+    ctx.font = '18px system-ui';
+    ctx.fillText('Pulsa ESPACIO o ENTER para empezar', W/2, H/2 + 8);
+    ctx.font = '14px system-ui';
+    ctx.fillText('Atrapa peces, mejora tu equipo y entra al top 5.', W/2, H/2 + 40);
+  }
+
+  function drawNameEntry(){
+    if (!enteringName) return;
+    ctx.fillStyle = 'rgba(15,23,42,0.9)';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 40px system-ui';
+    ctx.fillText('¡NUEVO TOP 5!', W/2, H/2 - 60);
+
+    ctx.fillStyle = '#e5e7eb';
+    ctx.font = '18px system-ui';
+    ctx.fillText(`Puntos: ${pendingScore}`, W/2, H/2 - 20);
+    ctx.fillText('Escribe tus iniciales (A-Z), ENTER para guardar', W/2, H/2 + 10);
+
+    const shown = (initials + '___').slice(0,3);
+    ctx.font = 'bold 32px system-ui';
+    ctx.fillText(shown.split('').join(' '), W/2, H/2 + 60);
+  }
+
+  function drawGameOver(){
+    if (!gameOver || enteringName) return;
+    ctx.fillStyle = 'rgba(15,23,42,.8)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#e5e7eb'; ctx.textAlign = 'center';
+    ctx.font = 'bold 42px system-ui'; ctx.fillText('Juego terminado', W/2, H/2-20);
+
+    const top = highscores[0];
+    const bestText = top ? `${top.name} ${top.score}` : '--- 0';
+
+    ctx.font = 'bold 20px system-ui';
+    ctx.fillText(`Puntos: ${score}  ·  Mejor: ${bestText}`, W/2, H/2+18);
+    ctx.font = '16px system-ui';
+    ctx.fillText('Pulsa R para reiniciar', W/2, H/2+48);
+  }
+
+  function drawUI(){
+    drawStartScreen();
+    drawNameEntry();
+    drawGameOver();
+
+    if (inFight && hookedFish && !gameOver && !enteringName) {
+      ctx.fillStyle = 'rgba(15,23,42,.25)'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#e5e7eb'; ctx.font = '18px system-ui'; ctx.textAlign = 'center';
+      ctx.fillText('¡Pulsa ESPACIO repetidamente para ganar la pelea y subir el pez!', W/2, 360);
+    }
+  }
+
+  function loop(){
+    update();
+    ctx.clearRect(0,0,W,H);
+    drawWater();
+    drawFishes();
+    drawBoat();
+    drawLineAndHook();
+    drawUI();
+    requestAnimationFrame(loop);
+  }
+
+  // Arranque inicial
+  loadHighscores();
+  resetGameState();
+  startTimer();
+  requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
