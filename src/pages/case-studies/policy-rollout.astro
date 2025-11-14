@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const templates = [
+  {
+    app: 'A1',
+    name: 'System Architecture Document – A1',
+    url: '/templates/A1-sad.docx'
+  },
+  {
+    app: 'B1',
+    name: 'System Architecture Document – B1',
+    url: '/templates/B1-sad.docx'
+  }
+];
+---
+
+<Base title="SDLC Policy Framework">
+  <section class="max-w-5xl mx-auto py-16 px-6">
+    <h1 class="text-4xl font-bold text-indigo-600 mb-4">
+      📘 SDLC Policy Framework – Single-Source Templates
+    </h1>
+
+    <p class="text-lg text-gray-700 dark:text-gray-300 mb-8">
+      This framework uses a single source document and app-specific properties to generate
+      multiple policy and architecture templates (SAD, SDP, etc.) through GitHub Actions
+      and Pandoc. The downloads below are generated automatically from the same base file.
+    </p>
+
+    <h2 class="text-2xl font-semibold text-indigo-500 mb-4">Download Templates</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      {templates.map((t) => (
+        <article class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
+          <h3 class="text-xl font-semibold mb-2">{t.name}</h3>
+          <p class="text-sm text-gray-500 mb-4">
+            Generated from the single SAD base document using app-specific properties.
+          </p>
+          <a
+            href={t.url}
+            class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
+          >
+            Download
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>

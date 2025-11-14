@@ -1,0 +1,208 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const meta = {
+  title: "Release Notes Automation",
+  client: "DevOps & Product",
+  tags: ["Automation", "DevOps", "Docs", "CI/CD"],
+  outcomes: [
+    "Automated release notes generation from tags and commits",
+    "Eliminated manual document creation time (2–4 hours per release)",
+    "Provided consistent formatting across all teams",
+    "Enabled release auditors to trace changes instantly"
+  ],
+  summary:
+    "Automated release notes generation using structured templates, tagging, and CI/CD pipeline triggers."
+};
+---
+
+<Base title={meta.title}>
+  <main class="case-page max-w-5xl mx-auto px-4 py-10 space-y-10">
+
+    <!-- HEADER -->
+    <header class="space-y-6 border-b border-slate-700/40 pb-8">
+      <p class="text-sm uppercase tracking-[0.2em] text-slate-400">
+        Case Study · {meta.client}
+      </p>
+
+      <h1 class="text-3xl md:text-4xl font-semibold text-white">
+        {meta.title}
+      </h1>
+
+      <p class="text-lg text-slate-200 leading-relaxed">
+        {meta.summary}
+      </p>
+
+      <div class="flex flex-wrap gap-2">
+        {meta.tags.map((tag) => (
+          <span class="rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-slate-200">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-4">
+        {meta.outcomes.map((o) => (
+          <div class="rounded-xl border border-slate-700 bg-slate-800/50 p-4 text-sm shadow-sm">
+            <p class="text-slate-200">{o}</p>
+          </div>
+        ))}
+      </div>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section>
+      <h2 class="text-xl font-semibold text-white">Overview</h2>
+      <p class="text-slate-200 leading-relaxed">
+        I built an automated <strong>Release Notes generation system</strong> that transformed
+        commit data, PR metadata, and tags into standardized documentation. This removed manual
+        work, reduced release delays, and guaranteed audit-friendly documentation.
+      </p>
+    </section>
+
+    <!-- PROBLEM -->
+    <section>
+      <h2 class="text-xl font-semibold text-white">Problem</h2>
+      <p class="text-slate-200">Before automation, release notes were:</p>
+      <ul class="list-disc list-inside text-slate-200 space-y-1">
+        <li>Written manually by developers</li>
+        <li>Missing key information</li>
+        <li>Inconsistently formatted</li>
+        <li>Time consuming (hours per release)</li>
+        <li>Frequently delivered late</li>
+      </ul>
+
+      <p class="text-slate-200 mt-2">This created gaps for:</p>
+      <ul class="list-disc list-inside text-slate-200 space-y-1">
+        <li>Product managers</li>
+        <li>QA</li>
+        <li>Release partners</li>
+        <li>SOC 2 auditors</li>
+      </ul>
+    </section>
+
+    <!-- APPROACH -->
+    <section class="space-y-10">
+      <h2 class="text-xl font-semibold text-white">Approach</h2>
+
+      <div>
+        <h3 class="font-semibold text-white text-lg">🔹 1. Defined a Standard Release Notes Template</h3>
+        <p class="text-slate-200 leading-relaxed">
+          Included sections for:
+        </p>
+        <ul class="text-slate-200 list-disc list-inside space-y-1">
+          <li>Summary of changes</li>
+          <li>Breaking changes</li>
+          <li>API changes</li>
+          <li>Dependency updates</li>
+          <li>Bug fixes</li>
+          <li>Testing validation</li>
+          <li>Links to PRs and commits</li>
+          <li>Rollback instructions</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-white text-lg">🔹 2. Implemented Commit Tagging Conventions</h3>
+        <p class="text-slate-200">Examples:</p>
+        <ul class="text-slate-200 list-disc list-inside space-y-1">
+          <li>feat: new tax calculation</li>
+          <li>fix: payment double-charge bug</li>
+          <li>docs: updated API reference</li>
+          <li>refactor: improved entity service</li>
+          <li>chore: CI pipeline cleanup</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-white text-lg">🔹 3. Created a CI/CD Workflow</h3>
+        <ul class="text-slate-200 list-disc list-inside space-y-1">
+          <li>Detects tags or new release</li>
+          <li>Parses commits via <code>git log</code> or GitHub API</li>
+          <li>Groups changes by category</li>
+          <li>Builds formatted Markdown/PDF output</li>
+          <li>Uploads as release asset</li>
+          <li>Posts summary to Slack / Teams</li>
+        </ul>
+        <p class="text-slate-200 mt-2">Developers only tag the release — documentation is generated automatically.</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-white text-lg">🔹 4. Added Cross-Team Validation</h3>
+        <ul class="text-slate-200 list-disc list-inside space-y-1">
+          <li>QA validation results</li>
+          <li>Security validation status</li>
+          <li>Related tickets (ClickUp, Jira)</li>
+          <li>Migration notes for developers</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- OUTCOMES -->
+    <section>
+      <h2 class="text-xl font-semibold text-white">Outcomes</h2>
+      <ul class="text-slate-200 list-disc list-inside space-y-1">
+        <li>✔ 0 manual hours spent writing notes</li>
+        <li>✔ 100% consistent formatting across releases</li>
+        <li>✔ Full change traceability for auditors</li>
+        <li>✔ Faster release cycle & fewer delays</li>
+      </ul>
+    </section>
+
+    <!-- EXAMPLE ASSETS -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-semibold text-white">Example Assets</h2>
+
+      <div class="grid gap-4 md:grid-cols-2">
+
+        <!-- Card 1 -->
+        <a
+          href="/templates/release-notes-template.md"
+          class="asset-card group flex items-start justify-between rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-sm shadow-sm hover:border-slate-500 hover:bg-slate-800 transition"
+        >
+          <div class="space-y-1">
+            <p class="font-semibold text-white">Release Notes Template (MD)</p>
+            <p class="text-slate-300">Standardized template used for commit-driven documentation.</p>
+          </div>
+          <span class="text-slate-400">⬇</span>
+        </a>
+
+        <!-- Card 2 -->
+        <a
+          href="/templates/release-workflow.yaml"
+          class="asset-card group flex items-start justify-between rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-sm shadow-sm hover:border-slate-500 hover:bg-slate-800 transition"
+        >
+          <div class="space-y-1">
+            <p class="font-semibold text-white">GitHub Actions Workflow (YAML)</p>
+            <p class="text-slate-300">CI workflow that builds and publishes automated notes.</p>
+          </div>
+          <span class="text-slate-400">⬇</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- LOCAL PAGE-ONLY STYLES -->
+  <style>
+    /* Bright text for this case page only */
+    .case-page p,
+    .case-page li {
+      color: #f8fafc;
+    }
+
+    .case-page h1,
+    .case-page h2,
+    .case-page h3,
+    .case-page h4 {
+      color: #ffffff;
+    }
+
+    /* Asset cards (dark mode) */
+    .asset-card,
+    .asset-card * {
+      color: #ffffff;
+    }
+  </style>
+
+</Base>

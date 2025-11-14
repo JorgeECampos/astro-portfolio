@@ -1,46 +1,48 @@
 [
   {
     "title": "Software Development Policies",
-    "tags": [
-      "Policies",
-      "SDLC",
-      "Compliance"
-    ],
-    "summary": "End-to-end policy set: Git standards, code review, CI/CD, security, change control.",
+    "tags": ["Policies", "SDLC", "Compliance"],
+    "summary": "End-to-end SDLC policy bundle: branching, code review, CI/CD, documentation, and release validation.",
     "links": [
       {
-        "label": "Sample PDF",
-        "url": "/samples/policies-sample.pdf"
+        "label": "Case Study",
+        "url": "/case-studies/policy-rollout"
       }
     ]
   },
+
   {
-    "title": "API & SDK Documentation",
-    "tags": [
-      "API",
-      "SDK",
-      "Docs"
-    ],
-    "summary": "Reference and guides for REST/GraphQL SDKs with examples and versioning.",
+    "title": "API & SDK Documentation Hub",
+    "tags": ["API", "SDK", "Docs"],
+    "summary": "Versioned API references, SDK examples, quickstarts, and automated OpenAPI workflows.",
     "links": [
       {
-        "label": "Repo",
-        "url": "https://github.com/JorgeECampos/sdk-docs"
+        "label": "Case Study",
+        "url": "/case-studies/api-docs-hub"
       }
     ]
   },
+
   {
-    "title": "Validation & QA Guidelines",
-    "tags": [
-      "QA",
-      "Validation",
-      "Testing"
-    ],
-    "summary": "Strategy for unit/integration tests, coverage KPIs, UAT gates and release readiness.",
+    "title": "Security Validation Checklist",
+    "tags": ["QA", "Validation", "Testing"],
+    "summary": "SOC 2 / ISO 27001 aligned validation pipeline, checklists, automated audits and release gates.",
     "links": [
       {
-        "label": "Read",
-        "url": "/samples/qa-guidelines.pdf"
+        "label": "Case Study",
+        "url": "/case-studies/security-validation"
+      }
+    ]
+  },
+
+  {
+    "title": "Release Notes Automation",
+    "tags": ["Docs", "Automation", "DevOps"],
+    "summary": "Automated release notes using commit parsing, templates, CI workflows and standardized change logs.",
+    "links": [
+      {
+        "label": "Case Study",
+        "url": "/case-studies/release-notes-automation"
       }
     ]
   }
