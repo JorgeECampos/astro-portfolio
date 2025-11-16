@@ -473,58 +473,59 @@
   function s_gameOver()   { playBeep(220, 0.25, 'square', 0.07); }
   function s_buy()        { playBeep(780, 0.06, 'triangle', 0.06); }
 
-  // ---------- Highscores ----------
-  function renderHighscores() {
-    highscoreListEl.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-      const li = document.createElement('li');
-      if (i < highscores.length) {
-        const h = highscores[i];
-        const name = (h.name || '---').padEnd(3, ' ').slice(0,3);
-        li.textContent = `${name} — ${h.score}`;
-      } else {
-        li.textContent = '--- — 0';
-      }
-      highscoreListEl.appendChild(li);
+// ---------- Highscores (backend) ----------
+async function renderHighscores() {
+  highscoreListEl.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const li = document.createElement('li');
+    if (i < highscores.length) {
+      const h = highscores[i];
+      const name = (h.name || '---').padEnd(3, ' ').slice(0,3);
+      li.textContent = `${name} — ${h.score}`;
+    } else {
+      li.textContent = '--- — 0';
     }
+    highscoreListEl.appendChild(li);
   }
+}
 
-  function loadHighscores() {
-    try {
-      const stored = localStorage.getItem('highscores');
-      if (stored) {
-        const arr = JSON.parse(stored);
-        if (Array.isArray(arr)) {
-          highscores = arr
-            .filter(x => typeof x.score === 'number' && typeof x.name === 'string')
-            .sort((a,b) => b.score - a.score)
-            .slice(0,5);
-        }
-      }
-    } catch (e) {}
-    renderHighscores();
+async function loadHighscores() {
+  try {
+    const res = await fetch('/api/scores');
+    if (!res.ok) throw new Error('error scores');
+    const data = await res.json();
+    // data = [{name, score}, ...]
+    highscores = data
+      .filter(x => typeof x.score === 'number' && typeof x.name === 'string')
+      .sort((a,b) => b.score - a.score)
+      .slice(0,5);
+  } catch (e) {
+    console.error(e);
+    highscores = [];
   }
+  renderHighscores();
+}
 
-  function saveHighscores() {
-    try {
-      localStorage.setItem('highscores', JSON.stringify(highscores));
-    } catch (e) {}
-  }
+function qualifiesForTop5(curScore) {
+  if (curScore <= 0) return false;
+  if (highscores.length < 5) return true;
+  const last = highscores[highscores.length - 1];
+  return curScore > last.score;
+}
 
-  function qualifiesForTop5(curScore) {
-    if (curScore <= 0) return false;
-    if (highscores.length < 5) return true;
-    const last = highscores[highscores.length - 1];
-    return curScore > last.score;
+async function insertHighscore(name, curScore) {
+  try {
+    await fetch('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ name, score: curScore })
+    });
+    await loadHighscores();
+  } catch (e) {
+    console.error(e);
   }
+}
 
-  function insertHighscore(name, curScore) {
-    highscores.push({ name: name || '---', score: curScore });
-    highscores.sort((a,b) => b.score - a.score);
-    highscores = highscores.slice(0,5);
-    saveHighscores();
-    renderHighscores();
-  }
 
   // ---------- Tienda ----------
   function updateShopUI() {
