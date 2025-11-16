@@ -42,6 +42,9 @@
       display: flex;
       gap: 16px;
       align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      max-width: 2800px;
     }
 
     canvas {
@@ -53,23 +56,27 @@
       height: auto;
     }
 
-    /* Panel tienda izquierda */
+    /* 🛒 Panel tienda izquierda – compacto y en grid 2×2 */
     #shop-panel {
-      width: 230px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      width: 240px;
       background:
         linear-gradient(135deg, rgba(148, 91, 46, 0.32), rgba(80, 48, 22, 0.45)),
         url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='%2329241f'/%3E%3Cpath d='M0 20h40M20 0v40' stroke='%23382616' stroke-width='2'/%3E%3C/svg%3E");
       background-size: cover;
       border-radius: 14px;
       box-shadow: 0 0 0 1px #1e293b, 0 10px 20px rgba(0,0,0,.6);
-      padding: 10px 12px;
+      padding: 8px 10px;
       box-sizing: border-box;
-      font-size: 13px;
+      font-size: 12px;
       color: #fef9c3;
     }
     #shop-panel h3 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
+      grid-column: 1 / -1;
+      margin: 0 0 4px 0;
+      font-size: 13px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -79,46 +86,50 @@
       opacity: .8;
     }
     .upgrade-card {
-      background: rgba(15,23,42,0.8);
+      background: rgba(15,23,42,0.85);
       border-radius: 10px;
-      padding: 8px;
-      margin-bottom: 8px;
+      padding: 6px;
       box-shadow: 0 0 0 1px rgba(15,23,42,0.9);
       display: grid;
-      grid-template-columns: 40px 1fr;
-      gap: 8px;
+      grid-template-columns: 32px 1fr;
+      gap: 6px;
       align-items: center;
     }
+    
+    .upgrade-card:nth-of-type(4) {
+    
+      grid-column: 1 / -1;
+    }
     .upgrade-icon {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 18px;
       background: radial-gradient(circle at 30% 20%, #fbbf24, #b45309);
     }
     .upgrade-info h4 {
       margin: 0;
-      font-size: 13px;
+      font-size: 12px;
     }
     .upgrade-info p {
-      margin: 2px 0 4px 0;
-      font-size: 11px;
+      margin: 2px 0 2px 0;
+      font-size: 10px;
       opacity: .9;
     }
     .upgrade-info .cost {
-      font-size: 11px;
+      font-size: 10px;
       opacity: .85;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .upgrade-info button {
       width: 100%;
       border-radius: 999px;
       border: none;
-      padding: 4px 6px;
-      font-size: 12px;
+      padding: 3px 6px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       background: #22c55e;
@@ -137,7 +148,7 @@
       color: #e5e7eb;
     }
 
-    /* Panel highscores derecha */
+    /* 🏆 Panel highscores derecha */
     #highscores-panel {
       width: 190px;
       background: #020617;
@@ -187,7 +198,7 @@
       font-size: 12px;
     }
 
-    /* Controles touch */
+    /* 🎮 Controles touch */
     #touch-controls {
       display: none;
       margin-top: 8px;
@@ -271,6 +282,27 @@
       color: #022c22;
     }
 
+    @media (min-width: 1024px) {
+  #game-row {
+    justify-content: center;
+  }
+
+  #shop-panel {
+    width: 300px;
+    flex-shrink: 0;      
+  }
+
+  #highscores-panel {
+    width: 180px;
+    flex-shrink: 0;      
+  }
+
+  canvas {
+    max-width: 1860px;    /* el juego se ve grande pero sin romper layout */
+  }
+}
+
+    /* 📱 MÓVIL VERTICAL */
     @media (max-width: 900px) {
       #wrap {
         padding: 6px;
@@ -299,7 +331,7 @@
         padding: 0 6px;
       }
 
-      /* 🔥 Controles SIEMPRE visibles abajo en cel */
+      /* Controles SIEMPRE visibles abajo en cel */
       #touch-controls {
         display: flex;
         position: fixed;
@@ -318,10 +350,78 @@
         padding-bottom: 90px; /* espacio para que no tape el juego */
       }
 
-      /* Controles MÁS GRANDES en móvil */
       #touch-controls button {
         min-width: 80px;
         padding: 12px 18px;
+        font-size: 18px;
+      }
+    }
+
+    /* 📱 MÓVIL ACOSTADO – tienda izq, scores der, todo compacto */
+    @media (orientation: landscape) and (max-height: 520px) {
+      #wrap {
+        padding: 4px;
+        gap: 4px;
+      }
+
+      #game-row {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      #shop-panel {
+        width: 200px;
+        padding: 6px 8px;
+        gap: 6px;
+        font-size: 11px;
+      }
+
+      .upgrade-card {
+        padding: 5px;
+        grid-template-columns: 28px 1fr;
+      }
+      .upgrade-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+      }
+      .upgrade-info h4 {
+        font-size: 11px;
+      }
+      .upgrade-info p,
+      .upgrade-info .cost {
+        font-size: 9px;
+      }
+      .upgrade-info button {
+        font-size: 10px;
+        padding: 3px 5px;
+      }
+
+      canvas {
+        max-width: none;
+        width: calc(100vw - 380px); /* espacio para tienda + scores */
+        height: 62vh;
+      }
+
+      #highscores-panel {
+        width: 160px;
+        font-size: 12px;
+      }
+
+      #help {
+        display: none;
+      }
+
+      #touch-controls {
+        bottom: 4px;
+        padding: 6px 8px;
+      }
+
+      #touch-controls button {
+        min-width: 70px;
+        padding: 10px 14px;
         font-size: 18px;
       }
     }
