@@ -214,55 +214,117 @@
       box-shadow: 0 0 0 #000;
     }
 
+    /* Panel para meter iniciales en mobile */
+    #name-touch {
+      display: none;
+      position: fixed;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15,23,42,0.75);
+      z-index: 60;
+    }
+
+    .name-touch-box {
+      background: #020617;
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+      text-align: center;
+      min-width: 260px;
+    }
+
+    .name-touch-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .name-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 4px 0;
+    }
+
+    .name-row.letters span {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 10px;
+    }
+
+    #name-touch button {
+      min-width: 44px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 0 #000;
+    }
+
+    #name-ok {
+      margin-top: 8px;
+      width: 100%;
+      background: #22c55e;
+      color: #022c22;
+    }
+
     @media (max-width: 900px) {
-  #wrap {
-    padding: 6px;
-    gap: 6px;
-  }
+      #wrap {
+        padding: 6px;
+        gap: 6px;
+      }
 
-  #hud {
-    gap: 6px;
-    justify-content: center;
-  }
+      #hud {
+        gap: 6px;
+        justify-content: center;
+      }
 
-  #game-row {
-    flex-direction: column;
-    align-items: center;
-  }
+      #game-row {
+        flex-direction: column;
+        align-items: center;
+      }
 
-  #shop-panel,
-  #highscores-panel {
-    width: 100%;
-    max-width: 420px;
-  }
+      #shop-panel,
+      #highscores-panel {
+        width: 100%;
+        max-width: 420px;
+      }
 
-  #help {
-    font-size: 12px;
-    max-width: 420px;
-    padding: 0 6px;
-  }
+      #help {
+        font-size: 12px;
+        max-width: 420px;
+        padding: 0 6px;
+      }
 
-  /* 🔥 Controles SIEMPRE visibles abajo en cel */
-  #touch-controls {
-    display: flex;
-    position: fixed;
-    left: 50%;
-    bottom: 8px;
-    transform: translateX(-50%);
-    max-width: 420px;
-    background: rgba(15,23,42,0.9);
-    padding: 6px 10px;
-    border-radius: 999px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    z-index: 50;
-  }
+      /* 🔥 Controles SIEMPRE visibles abajo en cel */
+      #touch-controls {
+        display: flex;
+        position: fixed;
+        left: 50%;
+        bottom: 8px;
+        transform: translateX(-50%);
+        max-width: 420px;
+        background: rgba(15,23,42,0.9);
+        padding: 6px 10px;
+        border-radius: 999px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        z-index: 50;
+      }
 
-  body {
-    padding-bottom: 90px; /* espacio para que no tape el juego */
-  }
-}
+      body {
+        padding-bottom: 90px; /* espacio para que no tape el juego */
+      }
 
-
+      /* Controles MÁS GRANDES en móvil */
+      #touch-controls button {
+        min-width: 80px;
+        padding: 12px 18px;
+        font-size: 18px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -321,7 +383,7 @@
       <aside id="highscores-panel">
         <h3>
           <span>🏆 Mejores 5</span>
-          <span style="font-size:11px;opacity:.8;"></span>
+          <span style="font-size:11px;opacity:.8;">(global)</span>
         </h3>
         <ol id="highscore-list">
           <li>--- — 0</li>
@@ -338,6 +400,33 @@
       <button id="btnRight">▶︎</button>
       <button id="btnCast">🎣</button>
       <button id="btnRestart">🔁</button>
+    </div>
+
+    <!-- Overlay para meter iniciales en móvil -->
+    <div id="name-touch">
+      <div class="name-touch-box">
+        <p class="name-touch-title">🎮 Escribe tus iniciales</p>
+
+        <div class="name-row">
+          <button data-slot="0" data-dir="up">▲</button>
+          <button data-slot="1" data-dir="up">▲</button>
+          <button data-slot="2" data-dir="up">▲</button>
+        </div>
+
+        <div class="name-row letters">
+          <span id="lt0">A</span>
+          <span id="lt1">A</span>
+          <span id="lt2">A</span>
+        </div>
+
+        <div class="name-row">
+          <button data-slot="0" data-dir="down">▼</button>
+          <button data-slot="1" data-dir="down">▼</button>
+          <button data-slot="2" data-dir="down">▼</button>
+        </div>
+
+        <button id="name-ok">OK</button>
+      </div>
     </div>
 
     <div id="help">
@@ -379,8 +468,19 @@
   const btnCast = document.getElementById('btnCast');
   const btnRestart = document.getElementById('btnRestart');
 
+  const nameTouch = document.getElementById('name-touch');
+  const nameLettersEls = [
+    document.getElementById('lt0'),
+    document.getElementById('lt1'),
+    document.getElementById('lt2')
+  ];
+  const nameOkBtn = document.getElementById('name-ok');
+
   const W = cnv.width, H = cnv.height;
   const surfaceY = 160; // línea de agua
+
+  // Detectar touch (para saber si usamos overlay de iniciales)
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   // Estado del juego
   let boatX, boatSpeed;
@@ -399,6 +499,9 @@
   let enteringName = false;
   let initials = '';
   let pendingScore = 0;
+
+  // Iniciales para overlay touch
+  let touchNameLetters = ['A','A','A'];
 
   // Mejoras
   let reelPower = 4;
@@ -473,59 +576,57 @@
   function s_gameOver()   { playBeep(220, 0.25, 'square', 0.07); }
   function s_buy()        { playBeep(780, 0.06, 'triangle', 0.06); }
 
-// ---------- Highscores (backend) ----------
-async function renderHighscores() {
-  highscoreListEl.innerHTML = '';
-  for (let i = 0; i < 5; i++) {
-    const li = document.createElement('li');
-    if (i < highscores.length) {
-      const h = highscores[i];
-      const name = (h.name || '---').padEnd(3, ' ').slice(0,3);
-      li.textContent = `${name} — ${h.score}`;
-    } else {
-      li.textContent = '--- — 0';
+  // ---------- Highscores (backend) ----------
+  async function renderHighscores() {
+    highscoreListEl.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const li = document.createElement('li');
+      if (i < highscores.length) {
+        const h = highscores[i];
+        const name = (h.name || '---').padEnd(3, ' ').slice(0,3);
+        li.textContent = `${name} — ${h.score}`;
+      } else {
+        li.textContent = '--- — 0';
+      }
+      highscoreListEl.appendChild(li);
     }
-    highscoreListEl.appendChild(li);
   }
-}
 
-async function loadHighscores() {
-  try {
-    const res = await fetch('/api/scores');
-    if (!res.ok) throw new Error('error scores');
-    const data = await res.json();
-    // data = [{name, score}, ...]
-    highscores = data
-      .filter(x => typeof x.score === 'number' && typeof x.name === 'string')
-      .sort((a,b) => b.score - a.score)
-      .slice(0,5);
-  } catch (e) {
-    console.error(e);
-    highscores = [];
+  async function loadHighscores() {
+    try {
+      const res = await fetch('/api/scores');
+      if (!res.ok) throw new Error('error scores');
+      const data = await res.json();
+      highscores = (Array.isArray(data) ? data : [])
+        .filter(x => typeof x.score === 'number' && typeof x.name === 'string')
+        .sort((a,b) => b.score - a.score)
+        .slice(0,5);
+    } catch (e) {
+      console.error(e);
+      highscores = [];
+    }
+    renderHighscores();
   }
-  renderHighscores();
-}
 
-function qualifiesForTop5(curScore) {
-  if (curScore <= 0) return false;
-  if (highscores.length < 5) return true;
-  const last = highscores[highscores.length - 1];
-  return curScore > last.score;
-}
-
-async function insertHighscore(name, curScore) {
-  try {
-    await fetch('/api/scores', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ name, score: curScore })
-    });
-    await loadHighscores();
-  } catch (e) {
-    console.error(e);
+  function qualifiesForTop5(curScore) {
+    if (curScore <= 0) return false;
+    if (highscores.length < 5) return true;
+    const last = highscores[highscores.length - 1];
+    return curScore > last.score;
   }
-}
 
+  async function insertHighscore(name, curScore) {
+    try {
+      await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ name, score: curScore })
+      });
+      await loadHighscores();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   // ---------- Tienda ----------
   function updateShopUI() {
@@ -568,7 +669,6 @@ async function insertHighscore(name, curScore) {
   // ---------- Tipos de peces ----------
   function randomFishType() {
     const r = Math.random();
-    // rareChance empuja más a dorados
     const goldenBoost = rareChance;
     if (r < 0.04 + goldenBoost) return 'golden';
     if (r < 0.12) return 'jelly';
@@ -615,8 +715,6 @@ async function insertHighscore(name, curScore) {
       speed = 1.1 * (0.8 + Math.random()*0.6);
       color = fishColorsJelly[Math.floor(Math.random()*fishColorsJelly.length)];
     } else {
-      // normal
-      // aún respetamos rareChance para que existan peces grandes
       if (Math.random() < rareChance) {
         size = 34;
       } else {
@@ -681,6 +779,13 @@ async function insertHighscore(name, curScore) {
       enteringName = true;
       initials = '';
       pendingScore = score;
+
+      // En móvil: mostrar overlay de iniciales con flechas
+      if (isTouch && nameTouch) {
+        touchNameLetters = ['A','A','A'];
+        renderTouchName();
+        nameTouch.style.display = 'flex';
+      }
     }
   }
 
@@ -696,6 +801,7 @@ async function insertHighscore(name, curScore) {
     }
 
     if (enteringName) {
+      // En desktop seguimos usando teclado para iniciales
       handleInitialsInput(e);
       return;
     }
@@ -977,7 +1083,6 @@ async function insertHighscore(name, curScore) {
 
   function drawFishes(){
     for (const f of fishes) {
-      // Medusa
       if (f.type === 'jelly') {
         ctx.save();
         ctx.translate(f.x, f.y);
@@ -1077,7 +1182,12 @@ async function insertHighscore(name, curScore) {
     ctx.fillText(`Puntos: ${pendingScore}`, W/2, H/2 - 20);
     ctx.fillText('Escribe tus iniciales (A-Z), ENTER para guardar', W/2, H/2 + 10);
 
-    const shown = (initials + '___').slice(0,3);
+    let shown;
+    if (isTouch && nameTouch && nameTouch.style.display !== 'none') {
+      shown = touchNameLetters.join('');
+    } else {
+      shown = (initials + '___').slice(0,3);
+    }
     ctx.font = 'bold 32px system-ui';
     ctx.fillText(shown.split('').join(' '), W/2, H/2 + 60);
   }
@@ -1126,11 +1236,6 @@ async function insertHighscore(name, curScore) {
   }
 
   // --------- Controles touch ----------
-  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if (isTouch && touchControls) {
-    touchControls.style.display = 'flex';
-  }
-
   function addHoldButton(btn, key){
     const down = (e) => {
       e.preventDefault();
@@ -1146,6 +1251,10 @@ async function insertHighscore(name, curScore) {
     btn.addEventListener('mousedown', down);
     btn.addEventListener('mouseup', up);
     btn.addEventListener('mouseleave', up);
+  }
+
+  if (isTouch && touchControls) {
+    touchControls.style.display = 'flex';
   }
 
   if (btnLeft && btnRight) {
@@ -1179,6 +1288,40 @@ async function insertHighscore(name, curScore) {
     };
     btnRestart.addEventListener('click', tapRestart);
     btnRestart.addEventListener('touchstart', tapRestart);
+  }
+
+  // --------- Overlay de iniciales touch ----------
+  function renderTouchName() {
+    for (let i = 0; i < 3; i++) {
+      nameLettersEls[i].textContent = touchNameLetters[i];
+    }
+  }
+
+  if (nameTouch) {
+    document.querySelectorAll('#name-touch button[data-slot]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const slot = parseInt(btn.dataset.slot, 10);
+        const dir = btn.dataset.dir;
+        let code = touchNameLetters[slot].charCodeAt(0);
+        if (dir === 'up') code++;
+        else code--;
+        if (code > 90) code = 65;  // Z -> A
+        if (code < 65) code = 90;  // A -> Z
+        touchNameLetters[slot] = String.fromCharCode(code);
+        renderTouchName();
+      });
+    });
+
+    if (nameOkBtn) {
+      nameOkBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const name = touchNameLetters.join('');
+        insertHighscore(name, pendingScore);
+        enteringName = false;
+        nameTouch.style.display = 'none';
+      });
+    }
   }
 
   // Arranque inicial
