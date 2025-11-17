@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pesca Retro – Prototipo</title>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesca Retro – Prototipo</title>
   <style>
     html, body {
       height: 100%;
@@ -12,8 +18,9 @@
       font-family: system-ui, Segoe UI, Roboto, Arial;
       color: #e0e6ef;
     }
+
     #wrap {
-      height: 100%;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -22,6 +29,7 @@
       padding: 10px;
       box-sizing: border-box;
     }
+
     #hud {
       display: flex;
       gap: 12px;
@@ -30,6 +38,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
+
     .pill {
       padding: 6px 10px;
       border-radius: 10px;
@@ -38,22 +47,45 @@
       font-size: 13px;
     }
 
+    #world-map {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .level-node {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      opacity: .4;
+    }
+    .level-node.unlocked { opacity: 1; }
+    .level-node.current {
+      background: #22c55e33;
+      border-color: #22c55e;
+    }
+
     #game-row {
       display: flex;
       gap: 16px;
       align-items: flex-start;
       justify-content: center;
       width: 100%;
-      max-width: 2800px;
+      max-width: 1200px;
     }
 
     canvas {
       background: #020617;
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,.6);
+      display: block;
       width: 100%;
-      max-width: 900px;
-      height: auto;
+      max-width: 1150px;
+      height: auto;             
     }
 
     /* 🛒 Panel tienda izquierda – compacto y en grid 2×2 */
@@ -72,6 +104,7 @@
       box-sizing: border-box;
       font-size: 12px;
       color: #fef9c3;
+      flex-shrink: 0;
     }
     #shop-panel h3 {
       grid-column: 1 / -1;
@@ -95,11 +128,8 @@
       gap: 6px;
       align-items: center;
     }
-    
-    .upgrade-card:nth-of-type(4) {
-    
-      grid-column: 1 / -1;
-    }
+    .upgrade-card:nth-of-type(4) { grid-column: 1 / -1; }
+
     .upgrade-icon {
       width: 32px;
       height: 32px;
@@ -157,6 +187,7 @@
       padding: 10px 12px;
       box-sizing: border-box;
       font-size: 13px;
+      flex-shrink: 0;
     }
     #highscores-panel h3 {
       margin: 0 0 6px 0;
@@ -235,7 +266,6 @@
       background: rgba(15,23,42,0.75);
       z-index: 60;
     }
-
     .name-touch-box {
       background: #020617;
       border-radius: 16px;
@@ -244,25 +274,21 @@
       text-align: center;
       min-width: 260px;
     }
-
     .name-touch-title {
       margin: 0 0 8px;
       font-size: 14px;
     }
-
     .name-row {
       display: flex;
       justify-content: center;
       gap: 12px;
       margin: 4px 0;
     }
-
     .name-row.letters span {
       font-size: 26px;
       font-weight: 700;
       letter-spacing: 10px;
     }
-
     #name-touch button {
       min-width: 44px;
       padding: 6px 8px;
@@ -274,7 +300,6 @@
       font-weight: 600;
       box-shadow: 0 2px 0 #000;
     }
-
     #name-ok {
       margin-top: 8px;
       width: 100%;
@@ -282,25 +307,15 @@
       color: #022c22;
     }
 
-    @media (min-width: 1024px) {
-  #game-row {
-    justify-content: center;
-  }
-
-  #shop-panel {
-    width: 300px;
-    flex-shrink: 0;      
-  }
-
-  #highscores-panel {
-    width: 180px;
-    flex-shrink: 0;      
-  }
-
-  canvas {
-    max-width: 1860px;    /* el juego se ve grande pero sin romper layout */
-  }
-}
+    /* 💻 Desktop ancho */
+    @media (min-width: 3024px) {
+      #game-row {
+        justify-content: center;
+      }
+      #shop-panel { width: 300px; }
+      #highscores-panel { width: 180px; }
+      canvas { max-width: 900px; }
+    }
 
     /* 📱 MÓVIL VERTICAL */
     @media (max-width: 900px) {
@@ -308,30 +323,26 @@
         padding: 6px;
         gap: 6px;
       }
-
       #hud {
         gap: 6px;
         justify-content: center;
       }
-
       #game-row {
         flex-direction: column;
         align-items: center;
       }
-
       #shop-panel,
       #highscores-panel {
         width: 100%;
-        max-width: 420px;
+        max-width: 100%;
       }
-
       #help {
         font-size: 12px;
         max-width: 420px;
         padding: 0 6px;
       }
 
-      /* Controles SIEMPRE visibles abajo en cel */
+      /* Controles siempre abajo en cel */
       #touch-controls {
         display: flex;
         position: fixed;
@@ -345,39 +356,37 @@
         box-shadow: 0 8px 20px rgba(0,0,0,0.6);
         z-index: 50;
       }
-
       body {
-        padding-bottom: 90px; /* espacio para que no tape el juego */
+        padding-bottom: 90px; /* espacio para los botones */
       }
-
       #touch-controls button {
         min-width: 80px;
         padding: 12px 18px;
         font-size: 18px;
       }
+      canvas {
+        max-width: 420px;
+      }
     }
 
-    /* 📱 MÓVIL ACOSTADO – tienda izq, scores der, todo compacto */
-    @media (orientation: landscape) and (max-height: 520px) {
+    /* 📱 MÓVIL ACOSTADO */
+    @media (orientation: landscape) and (max-height: 720px) {
       #wrap {
         padding: 4px;
         gap: 4px;
       }
-
       #game-row {
         flex-direction: row;
         align-items: flex-start;
         justify-content: center;
         gap: 8px;
       }
-
       #shop-panel {
         width: 200px;
         padding: 6px 8px;
         gap: 6px;
         font-size: 11px;
       }
-
       .upgrade-card {
         padding: 5px;
         grid-template-columns: 28px 1fr;
@@ -387,38 +396,27 @@
         height: 28px;
         font-size: 16px;
       }
-      .upgrade-info h4 {
-        font-size: 11px;
-      }
+      .upgrade-info h4 { font-size: 11px; }
       .upgrade-info p,
-      .upgrade-info .cost {
-        font-size: 9px;
-      }
+      .upgrade-info .cost { font-size: 9px; }
       .upgrade-info button {
         font-size: 10px;
         padding: 3px 5px;
       }
-
       canvas {
         max-width: none;
-        width: calc(100vw - 380px); /* espacio para tienda + scores */
+        width: calc(100vw - 380px);
         height: 62vh;
       }
-
       #highscores-panel {
         width: 160px;
         font-size: 12px;
       }
-
-      #help {
-        display: none;
-      }
-
+      #help { display: none; }
       #touch-controls {
         bottom: 4px;
         padding: 6px 8px;
       }
-
       #touch-controls button {
         min-width: 70px;
         padding: 10px 14px;
@@ -428,6 +426,10 @@
   </style>
 </head>
 <body>
+</body>
+</html>
+</head>
+<body>
   <div id="wrap">
     <div id="hud">
       <div class="pill">⏱️ Tiempo: <span id="time">360</span>s</div>
@@ -435,16 +437,23 @@
       <div class="pill">🐟 Puntos: <span id="score">0</span></div>
       <div class="pill">💰 Monedas: <span id="coins">0</span></div>
       <div class="pill" id="fightBox" style="display:none">🎣 Pelea: <progress id="fight" value="0" max="100"></progress></div>
+      <div class="pill">🌍 Nivel: <span id="level-name">Estanque (1/5)</span></div>
+    </div>
+
+    <div id="world-map">
+      <span class="level-node" data-level="0">🏞️ Estanque</span>
+      <span class="level-node" data-level="1">🌊 Río</span>
+      <span class="level-node" data-level="2">🌅 Mar</span>
+      <span class="level-node" data-level="3">🌌 Alta mar</span>
+      <span class="level-node" data-level="4">🚀 Espacio</span>
     </div>
 
     <div id="game-row">
-      <!-- TIENDA A LA IZQUIERDA -->
       <aside id="shop-panel">
         <h3>
           <span>🛒 Tienda</span>
           <small>Haz clic para comprar</small>
         </h3>
-
         <div class="upgrade-card">
           <div class="upgrade-icon">🧵</div>
           <div class="upgrade-info">
@@ -454,7 +463,6 @@
             <button id="btnReel">Comprar</button>
           </div>
         </div>
-
         <div class="upgrade-card">
           <div class="upgrade-icon" style="background:radial-gradient(circle at 30% 20%, #e5e7eb,#6b7280);">🪢</div>
           <div class="upgrade-info">
@@ -464,7 +472,6 @@
             <button id="btnLine">Comprar</button>
           </div>
         </div>
-
         <div class="upgrade-card">
           <div class="upgrade-icon" style="background:radial-gradient(circle at 30% 20%, #22c55e,#166534);">🐟</div>
           <div class="upgrade-info">
@@ -476,10 +483,8 @@
         </div>
       </aside>
 
-      <!-- JUEGO EN EL CENTRO -->
       <canvas id="game" width="900" height="520"></canvas>
 
-      <!-- TOP 5 A LA DERECHA -->
       <aside id="highscores-panel">
         <h3>
           <span>🏆 Mejores 5</span>
@@ -502,29 +507,25 @@
       <button id="btnRestart">🔁</button>
     </div>
 
-    <!-- Overlay para meter iniciales en móvil -->
+    <!-- Overlay iniciales móvil -->
     <div id="name-touch">
       <div class="name-touch-box">
         <p class="name-touch-title">🎮 Escribe tus iniciales</p>
-
         <div class="name-row">
           <button data-slot="0" data-dir="up">▲</button>
           <button data-slot="1" data-dir="up">▲</button>
           <button data-slot="2" data-dir="up">▲</button>
         </div>
-
         <div class="name-row letters">
           <span id="lt0">A</span>
           <span id="lt1">A</span>
           <span id="lt2">A</span>
         </div>
-
         <div class="name-row">
           <button data-slot="0" data-dir="down">▼</button>
           <button data-slot="1" data-dir="down">▼</button>
           <button data-slot="2" data-dir="down">▼</button>
         </div>
-
         <button id="name-ok">OK</button>
       </div>
     </div>
@@ -548,6 +549,8 @@
   </div>
 
   <script>
+  const levelNameEl = document.getElementById('level-name');
+  const worldMapEl  = document.getElementById('world-map');
   const cnv = document.getElementById('game');
   const ctx = cnv.getContext('2d');
   const timeEl = document.getElementById('time');
@@ -577,12 +580,34 @@
   const nameOkBtn = document.getElementById('name-ok');
 
   const W = cnv.width, H = cnv.height;
-  const surfaceY = 160; // línea de agua
-
-  // Detectar touch (para saber si usamos overlay de iniciales)
+  const surfaceY = 160;
   const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-  // Estado del juego
+  const LEVELS = [
+    { name: 'Estanque', goal:   0 },
+    { name: 'Río',      goal:  20 },
+    { name: 'Mar',      goal:  50 },
+    { name: 'Alta mar', goal:  90 },
+    { name: 'Espacio',  goal: 140 },
+  ];
+
+  const levelThemes = [
+    { waterTop: '#0ea5e9', waterMid: '#0369a1', waterBottom: '#020617', extraGolden: 0.00 },
+    { waterTop: '#22c55e', waterMid: '#15803d', waterBottom: '#052e16', extraGolden: 0.02 },
+    { waterTop: '#38bdf8', waterMid: '#0284c7', waterBottom: '#0f172a', extraGolden: 0.04 },
+    { waterTop: '#0f172a', waterMid: '#1d4ed8', waterBottom: '#020617', extraGolden: 0.06 },
+    { waterTop: '#020617', waterMid: '#111827', waterBottom: '#020617', extraGolden: 0.10 },
+  ];
+
+  // Progreso de nivel
+  let currentLevelIndex = 0;
+  let maxLevelUnlocked = 0;
+  let isLevelScreen = true;
+  let levelScreenMode = 'start';
+  let levelScreenText = '';
+  let loadedState = null;
+
+  // Estado juego
   let boatX, boatSpeed;
   let hookX, hookY, lineLenMax;
   let casting, retrieving;
@@ -591,46 +616,102 @@
   let timerId = null;
   let gameStarted = false;
 
-  // Metajuego: top 5
+  // Metajuego
   let highscores = [];
   let coins = 0;
-
-  // Nombre de récord
   let enteringName = false;
   let initials = '';
   let pendingScore = 0;
 
-  // Iniciales para overlay touch
   let touchNameLetters = ['A','A','A'];
 
-  // Mejoras
   let reelPower = 4;
   let lineStrength = 0;
   let rareChance = 0;
 
-  // Peces
   const fishes = [];
   const fishColorsNormal = ['#89c2d9','#61a5c2','#468faf','#2c7da0'];
   const fishColorsSlim   = ['#38bdf8','#0ea5e9'];
   const fishColorsRound  = ['#0f766e','#14b8a6'];
   const fishColorsJelly  = ['#a855f7','#6366f1'];
 
-  // Cielo
   const clouds = [];
+  const stars = [];
+
+  function saveProgress() {
+    try {
+      const data = {
+        maxLevelUnlocked,
+        currentLevelIndex,
+        score,
+        coins,
+        reelPower,
+        lineStrength,
+        rareChance,
+        timeLeft,
+        lives,
+      };
+      localStorage.setItem('pescaRetroSave', JSON.stringify(data));
+    } catch (e) {
+      console.error('No se pudo guardar progreso', e);
+    }
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem('pescaRetroSave');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      maxLevelUnlocked   = typeof data.maxLevelUnlocked   === 'number' ? data.maxLevelUnlocked   : 0;
+      loadedState = {
+        currentLevelIndex: typeof data.currentLevelIndex === 'number'
+          ? Math.max(0, Math.min(LEVELS.length - 1, data.currentLevelIndex))
+          : 0,
+        score:        typeof data.score        === 'number' ? data.score        : 0,
+        coins:        typeof data.coins        === 'number' ? data.coins        : 0,
+        reelPower:    typeof data.reelPower    === 'number' ? data.reelPower    : 4,
+        lineStrength: typeof data.lineStrength === 'number' ? data.lineStrength : 0,
+        rareChance:   typeof data.rareChance   === 'number' ? data.rareChance   : 0,
+        timeLeft:     typeof data.timeLeft     === 'number' ? data.timeLeft     : 360,
+        lives:        typeof data.lives        === 'number' ? data.lives        : 3,
+      };
+    } catch (e) {
+      console.error('No se pudo leer progreso', e);
+    }
+  }
+
   function spawnCloud() {
     const y = 40 + Math.random() * 60;
     const speed = 0.2 + Math.random() * 0.4;
     const width = 80 + Math.random() * 80;
-    clouds.push({
-      x: Math.random() * W,
-      y,
-      w: width,
-      h: 24 + Math.random() * 8,
-      speed
+    clouds.push({ x: Math.random()*W, y, w: width, h: 24 + Math.random()*8, speed });
+  }
+
+  function initStars() {
+    stars.length = 0;
+    for (let i = 0; i < 80; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * surfaceY,
+        r: 1 + Math.random() * 1.5,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+
+  function updateLevelUI() {
+    const lvl = LEVELS[currentLevelIndex];
+    levelNameEl.textContent = `${lvl.name} (${currentLevelIndex + 1}/${LEVELS.length})`;
+    if (!worldMapEl) return;
+    const nodes = worldMapEl.querySelectorAll('.level-node');
+    nodes.forEach(node => {
+      const idx = parseInt(node.dataset.level, 10);
+      node.classList.remove('current', 'unlocked');
+      if (idx <= maxLevelUnlocked) node.classList.add('unlocked');
+      if (idx === currentLevelIndex) node.classList.add('current');
     });
   }
 
-  // Helpers colores día/noche
   function lerp(a,b,t){ return a + (b-a)*t; }
   function hexToRgb(h){
     const n = parseInt(h.slice(1),16);
@@ -644,15 +725,14 @@
     return `rgb(${r},${g},${b2})`;
   }
 
-  // ---------- Audio 8-bit ----------
+  // Audio
   let audioCtx = null;
   function initAudio() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
   }
-
-  function playBeep(freq = 440, duration = 0.08, type = 'square', volume = 0.08) {
+  function playBeep(freq=440,duration=0.08,type='square',volume=0.08){
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -666,17 +746,17 @@
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     osc.stop(now + duration + 0.02);
   }
+  const s_cast       = ()=>playBeep(880,0.08,'square');
+  const s_hook       = ()=>playBeep(660,0.08,'square');
+  const s_catchSmall = ()=>{playBeep(900,0.08,'square');playBeep(1200,0.1,'triangle',0.06);};
+  const s_catchMed   = ()=>{playBeep(700,0.08,'square');playBeep(1050,0.1,'square');playBeep(1350,0.12,'triangle',0.06);};
+  const s_catchBig   = ()=>{playBeep(500,0.1,'square');playBeep(800,0.12,'square');playBeep(1400,0.14,'triangle',0.07);};
+  const s_breakLine  = ()=>playBeep(260,0.12,'sawtooth');
+  const s_gameOver   = ()=>playBeep(220,0.25,'square',0.07);
+  const s_buy        = ()=>playBeep(780,0.06,'triangle',0.06);
+  const s_levelUp    = ()=>{playBeep(600,0.12,'square');playBeep(900,0.14,'triangle',0.07);};
 
-  function s_cast()       { playBeep(880, 0.08, 'square'); }
-  function s_hook()       { playBeep(660, 0.08, 'square'); }
-  function s_catchSmall() { playBeep(900, 0.08, 'square'); playBeep(1200, 0.1, 'triangle', 0.06); }
-  function s_catchMed()   { playBeep(700, 0.08, 'square'); playBeep(1050, 0.1, 'square'); playBeep(1350, 0.12, 'triangle', 0.06); }
-  function s_catchBig()   { playBeep(500, 0.1, 'square'); playBeep(800, 0.12, 'square'); playBeep(1400, 0.14, 'triangle', 0.07); }
-  function s_breakLine()  { playBeep(260, 0.12, 'sawtooth'); }
-  function s_gameOver()   { playBeep(220, 0.25, 'square', 0.07); }
-  function s_buy()        { playBeep(780, 0.06, 'triangle', 0.06); }
-
-  // ---------- Highscores (backend) ----------
+  // Highscores (offline si file://)
   async function renderHighscores() {
     highscoreListEl.innerHTML = '';
     for (let i = 0; i < 5; i++) {
@@ -693,6 +773,12 @@
   }
 
   async function loadHighscores() {
+    // si estás en file://, no intentes llamar API
+    if (location.protocol === 'file:') {
+      highscores = [];
+      renderHighscores();
+      return;
+    }
     try {
       const res = await fetch('/api/scores');
       if (!res.ok) throw new Error('error scores');
@@ -716,6 +802,14 @@
   }
 
   async function insertHighscore(name, curScore) {
+    if (location.protocol === 'file:') {
+      // offline: solo actualiza arreglo local
+      highscores.push({name, score: curScore});
+      highscores.sort((a,b)=>b.score-a.score);
+      highscores = highscores.slice(0,5);
+      renderHighscores();
+      return;
+    }
     try {
       await fetch('/api/scores', {
         method: 'POST',
@@ -728,7 +822,6 @@
     }
   }
 
-  // ---------- Tienda ----------
   function updateShopUI() {
     btnReel.disabled = coins < 20;
     btnLine.disabled = coins < 30;
@@ -736,25 +829,15 @@
   }
 
   function buyUpgrade(type) {
-    if (gameOver || enteringName) return;
-    if (inFight) return;
-
+    if (gameOver || enteringName || inFight) return;
     let purchased = false;
-
     if (type === 'reel' && coins >= 20) {
-      coins -= 20;
-      reelPower += 1;
-      purchased = true;
+      coins -= 20; reelPower += 1; purchased = true;
     } else if (type === 'line' && coins >= 30) {
-      coins -= 30;
-      lineStrength = Math.min(90, lineStrength + 10);
-      purchased = true;
+      coins -= 30; lineStrength = Math.min(90, lineStrength + 10); purchased = true;
     } else if (type === 'rare' && coins >= 40) {
-      coins -= 40;
-      rareChance = Math.min(0.5, rareChance + 0.1);
-      purchased = true;
+      coins -= 40; rareChance = Math.min(0.5, rareChance + 0.1); purchased = true;
     }
-
     if (purchased) {
       coinsEl.textContent = coins;
       updateShopUI();
@@ -766,10 +849,10 @@
   btnLine.addEventListener('click', () => { initAudio(); buyUpgrade('line'); });
   btnRare.addEventListener('click', () => { initAudio(); buyUpgrade('rare'); });
 
-  // ---------- Tipos de peces ----------
   function randomFishType() {
     const r = Math.random();
-    const goldenBoost = rareChance;
+    const theme = levelThemes[currentLevelIndex] || levelThemes[0];
+    const goldenBoost = rareChance + (theme.extraGolden || 0);
     if (r < 0.04 + goldenBoost) return 'golden';
     if (r < 0.12) return 'jelly';
     if (r < 0.35) return 'slim';
@@ -795,33 +878,26 @@
     const yBase = surfaceY + 40 + Math.random() * (H - surfaceY - 90);
 
     if (type === 'slim') {
-      size = 18;
-      difficulty = 45;
+      size = 18; difficulty = 45;
       speed = 2.3 * (0.8 + Math.random()*0.6);
       color = fishColorsSlim[Math.floor(Math.random()*fishColorsSlim.length)];
     } else if (type === 'round') {
-      size = 26;
-      difficulty = 60;
+      size = 26; difficulty = 60;
       speed = 1.6 * (0.8 + Math.random()*0.6);
       color = fishColorsRound[Math.floor(Math.random()*fishColorsRound.length)];
     } else if (type === 'golden') {
-      size = 24;
-      difficulty = 65;
+      size = 24; difficulty = 65;
       speed = 1.6 * (0.8 + Math.random()*0.6);
       color = '#facc15';
     } else if (type === 'jelly') {
-      size = 22;
-      difficulty = 55;
+      size = 22; difficulty = 55;
       speed = 1.1 * (0.8 + Math.random()*0.6);
       color = fishColorsJelly[Math.floor(Math.random()*fishColorsJelly.length)];
     } else {
-      if (Math.random() < rareChance) {
-        size = 34;
-      } else {
-        size = Math.random() < 0.5 ? 16 : Math.random() < 0.8 ? 24 : 34;
-      }
-      difficulty = size === 16 ? 35 : size === 24 ? 55 : 75;
-      speed = (size === 34 ? 1.2 : size === 24 ? 1.6 : 2.1) * (0.8 + Math.random()*0.6);
+      if (Math.random() < rareChance) size = 34;
+      else size = Math.random()<0.5?16:Math.random()<0.8?24:34;
+      difficulty = size===16?35:size===24?55:75;
+      speed = (size===34?1.2:size===24?1.6:2.1)*(0.8+Math.random()*0.6);
       color = fishColorsNormal[Math.floor(Math.random()*fishColorsNormal.length)];
     }
 
@@ -829,35 +905,88 @@
     fishes.push({x,y,dir,speed,size,color,difficulty,type});
   }
 
+  function checkLevelProgress() {
+    const next = currentLevelIndex + 1;
+    if (next >= LEVELS.length) return;
+    const goal = LEVELS[next].goal;
+    if (score >= goal && !isLevelScreen && !gameOver) {
+      currentLevelIndex = next;
+      reelPower += 1;
+      lineStrength = Math.min(90, lineStrength + 5);
+      timeLeft += 30;
+      timeEl.textContent = timeLeft;
+
+      if (currentLevelIndex > maxLevelUnlocked) {
+        maxLevelUnlocked = currentLevelIndex;
+        saveProgress();
+      }
+      updateLevelUI();
+      if (currentLevelIndex === 4) initStars();
+
+      isLevelScreen = true;
+      levelScreenMode = 'levelup';
+      const lvl = LEVELS[currentLevelIndex];
+      levelScreenText = `Nivel ${currentLevelIndex + 1}: ${lvl.name}\nMeta: ${lvl.goal} puntos`;
+      gameStarted = false;
+      s_levelUp();
+    }
+  }
+
   function resetGameState(){
+    currentLevelIndex = 0;
+    score        = 0;
+    lives        = 3;
+    timeLeft     = 360;
+    coins        = 0;
+    reelPower    = 4;
+    lineStrength = 0;
+    rareChance   = 0;
+
+    if (loadedState) {
+      currentLevelIndex = loadedState.currentLevelIndex ?? currentLevelIndex;
+      score        = loadedState.score        ?? score;
+      coins        = loadedState.coins        ?? coins;
+      reelPower    = loadedState.reelPower    ?? reelPower;
+      lineStrength = loadedState.lineStrength ?? lineStrength;
+      rareChance   = loadedState.rareChance   ?? rareChance;
+      timeLeft     = loadedState.timeLeft     ?? timeLeft;
+      lives        = loadedState.lives        ?? lives;
+      loadedState  = null;
+    }
+
     fishes.length = 0;
     for (let i=0;i<10;i++) spawnFish();
-
     clouds.length = 0;
     for (let i=0;i<5;i++) spawnCloud();
+    stars.length = 0;
+    if (currentLevelIndex === 4) initStars();
 
     boatX = W/2; boatSpeed = 4;
     hookX = boatX; hookY = surfaceY + 18;
     lineLenMax = H - 40;
-    casting = false;
-    retrieving = false;
+    casting = retrieving = false;
     hookedFish = null;
     inFight = false;
     fightValue = 0;
-    score = 0; lives = 3; timeLeft = 360; gameOver = false;
-    coins = 0;
+    gameOver = false;
     gameStarted = false;
     enteringName = false;
     initials = '';
     pendingScore = 0;
 
-    timeEl.textContent = timeLeft;
-    livesEl.textContent = lives;
-    scoreEl.textContent = score;
-    coinsEl.textContent = coins;
+    timeEl.textContent   = timeLeft;
+    livesEl.textContent  = lives;
+    scoreEl.textContent  = score;
+    coinsEl.textContent  = coins;
     fightWrap.style.display = 'none';
     fightBar.value = 0;
     updateShopUI();
+
+    isLevelScreen  = true;
+    levelScreenMode = 'start';
+    const lvl = LEVELS[currentLevelIndex];
+    levelScreenText = `Nivel ${currentLevelIndex + 1}: ${lvl.name}\nMeta: ${lvl.goal} puntos`;
+    updateLevelUI();
   }
 
   function startTimer(){
@@ -872,15 +1001,15 @@
   function endGame(){
     gameOver = true;
     if (timerId) { clearInterval(timerId); timerId = null; }
-
     s_gameOver();
-
+    if (currentLevelIndex > maxLevelUnlocked) {
+      maxLevelUnlocked = currentLevelIndex;
+      saveProgress();
+    }
     if (qualifiesForTop5(score)) {
       enteringName = true;
       initials = '';
       pendingScore = score;
-
-      // En móvil: mostrar overlay de iniciales con flechas
       if (isTouch && nameTouch) {
         touchNameLetters = ['A','A','A'];
         renderTouchName();
@@ -889,25 +1018,30 @@
     }
   }
 
-  // Input teclado
   const keys = new Set();
 
   addEventListener('keydown', (e)=>{
     const k = e.key;
     if (['ArrowUp','ArrowDown',' '].includes(k)) e.preventDefault();
 
-    if (!audioCtx && (k === ' ' || k === 'Enter')) {
-      initAudio();
-    }
-
-    if (enteringName) {
-      // En desktop seguimos usando teclado para iniciales
-      handleInitialsInput(e);
+    if ((k === 'g' || k === 'G') && isLevelScreen && !gameOver && levelScreenMode === 'levelup') {
+      saveProgress();
+      alert('✅ Progreso de niveles guardado.\nPuedes cerrar el juego cuando quieras.');
       return;
     }
 
-    if (k === ' '){
+    if (!audioCtx && (k === ' ' || k === 'Enter')) initAudio();
+
+    if (enteringName) { handleInitialsInput(e); return; }
+
+    if (k === ' ') {
       if (e.repeat) return;
+      if (isLevelScreen && !gameOver) {
+        isLevelScreen = false;
+        gameStarted = true;
+        startTimer();
+        return;
+      }
       if (!gameStarted && !gameOver) {
         gameStarted = true;
         startTimer();
@@ -918,7 +1052,13 @@
       return;
     }
 
-    if (k === 'Enter' && !gameStarted && !gameOver){
+    if (k === 'Enter' && !gameStarted && !gameOver) {
+      if (isLevelScreen) {
+        isLevelScreen = false;
+        gameStarted = true;
+        startTimer();
+        return;
+      }
       gameStarted = true;
       startTimer();
       s_cast();
@@ -939,17 +1079,14 @@
   function handleInitialsInput(e){
     const k = e.key;
     const isLetter = /^[a-zA-Z]$/.test(k);
-
     if (isLetter && initials.length < 3){
       initials += k.toUpperCase();
       return;
     }
-
     if (k === 'Backspace'){
       initials = initials.slice(0, -1);
       return;
     }
-
     if (k === 'Enter' && initials.length > 0){
       insertHighscore(initials, pendingScore);
       enteringName = false;
@@ -959,25 +1096,16 @@
 
   function handleSpace(){
     if (gameOver) return;
-
     if (!casting && !retrieving && !inFight && !hookedFish) {
-      hookX = boatX; casting = true;
-      s_cast();
-      return;
+      hookX = boatX; casting = true; s_cast(); return;
     }
-
     if (inFight && hookedFish) {
       fightValue = Math.min(100, fightValue + 10);
       fightBar.value = fightValue;
       hookY = Math.max(surfaceY + 18, hookY - reelPower);
-
-      if (hookY <= surfaceY + 22) {
-        captureFish();
-        return;
-      }
+      if (hookY <= surfaceY + 22) { captureFish(); return; }
       return;
     }
-
     if (!inFight && !hookedFish && (casting || retrieving)) {
       retrieving = true; casting = false;
     }
@@ -986,34 +1114,27 @@
   function captureFish(){
     if (!hookedFish) return;
     const size = hookedFish.size;
-    let baseScore = 1;
-    let baseCoins = 1;
-
+    let baseScore = 1, baseCoins = 1;
     if (size >= 34) { baseScore = 3; baseCoins = 5; }
     else if (size >= 24) { baseScore = 2; baseCoins = 3; }
-
     const mult = typeMultiplier(hookedFish.type || 'normal');
     const gainedScore = Math.round(baseScore * mult);
     const gainedCoins = Math.round(baseCoins * mult);
-
     score += gainedScore;
     coins += gainedCoins;
-
     scoreEl.textContent = score;
     coinsEl.textContent = coins;
     updateShopUI();
-
     const idx = fishes.indexOf(hookedFish); if (idx>=0) fishes.splice(idx,1);
     spawnFish();
-
     if (size >= 34) s_catchBig();
     else if (size >= 24) s_catchMed();
     else s_catchSmall();
-
     inFight = false;
     hookedFish = null;
     fightWrap.style.display = 'none';
     retrieving = true;
+    checkLevelProgress();
   }
 
   function update() {
@@ -1070,15 +1191,10 @@
       const resistFactor = 1 - (lineStrength / 100);
       fightValue = Math.max(0, fightValue - pull * 0.2 * resistFactor);
       fightBar.value = fightValue;
-
       const wiggle = Math.sin(Date.now()*0.02) * 4;
       hookedFish.x = hookX + wiggle;
       hookedFish.y = hookY + 20;
-
-      if (fightValue < 40 && hookY < lineLenMax) {
-        hookY += 0.3;
-      }
-
+      if (fightValue < 40 && hookY < lineLenMax) hookY += 0.3;
       if (fightValue <= 0) {
         lives--; livesEl.textContent = lives;
         inFight = false;
@@ -1104,13 +1220,18 @@
     const t = Date.now() * 0.00003;
     const phase = (Math.sin(t) + 1) / 2;
 
-    const topNight = '#020617';
-    const midNight = '#0f172a';
-    const botNight = '#1d4ed8';
+    let topNight = '#020617';
+    let midNight = '#0f172a';
+    let botNight = '#1d4ed8';
 
-    const topDay = '#0f172a';
-    const midDay = '#1d4ed8';
-    const botDay = '#38bdf8';
+    let topDay = '#0f172a';
+    let midDay = '#1d4ed8';
+    let botDay = '#38bdf8';
+
+    if (currentLevelIndex === 4) {
+      topNight = midNight = botNight = '#020617';
+      topDay = midDay = botDay = '#020617';
+    }
 
     const top = lerpColor(topNight, topDay, phase);
     const mid = lerpColor(midNight, midDay, phase);
@@ -1123,30 +1244,45 @@
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0,0,W,surfaceY);
 
-    const sunX = W * 0.15 + Math.sin(t*1.2) * 40;
-    const sunY = surfaceY * (0.2 + 0.2 * Math.cos(t*1.1));
-    const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 40);
-    const sunColor = phase > 0.5 ? '#fde68a' : '#bfdbfe';
-    sunGrad.addColorStop(0, sunColor);
-    sunGrad.addColorStop(1, 'rgba(252,211,77,0)');
-    ctx.fillStyle = sunGrad;
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 40, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(241,245,249,' + (0.5 + 0.4*phase) + ')';
-    for (const c of clouds) {
+    if (currentLevelIndex !== 4) {
+      const sunX = W * 0.15 + Math.sin(t*1.2) * 40;
+      const sunY = surfaceY * (0.2 + 0.2 * Math.cos(t*1.1));
+      const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 40);
+      const sunColor = phase > 0.5 ? '#fde68a' : '#bfdbfe';
+      sunGrad.addColorStop(0, sunColor);
+      sunGrad.addColorStop(1, 'rgba(252,211,77,0)');
+      ctx.fillStyle = sunGrad;
       ctx.beginPath();
-      ctx.ellipse(c.x, c.y, c.w * 0.5, c.h * 0.5, 0, 0, Math.PI*2);
+      ctx.arc(sunX, sunY, 40, 0, Math.PI*2);
       ctx.fill();
+    }
+
+    if (currentLevelIndex !== 4) {
+      ctx.fillStyle = 'rgba(241,245,249,' + (0.5 + 0.4*phase) + ')';
+      for (const c of clouds) {
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, c.w * 0.5, c.h * 0.5, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
+    } else {
+      if (stars.length === 0) initStars();
+      for (const s of stars) {
+        const t2 = Date.now() * 0.002 + s.phase;
+        const alpha = 0.3 + 0.7 * Math.abs(Math.sin(t2));
+        ctx.fillStyle = `rgba(248,250,252,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
   function drawWater(){
-    const waterGrad = ctx.createLinearGradient(0,surfaceY,0,H);
-    waterGrad.addColorStop(0, '#0ea5e9');
-    waterGrad.addColorStop(0.4, '#0369a1');
-    waterGrad.addColorStop(1, '#020617');
+    const theme = levelThemes[currentLevelIndex] || levelThemes[0];
+    const waterGrad = ctx.createLinearGradient(0, surfaceY, 0, H);
+    waterGrad.addColorStop(0, theme.waterTop);
+    waterGrad.addColorStop(0.4, theme.waterMid);
+    waterGrad.addColorStop(1, theme.waterBottom);
     ctx.fillStyle = waterGrad;
     ctx.fillRect(0,surfaceY,W,H-surfaceY);
 
@@ -1161,12 +1297,103 @@
 
   function drawBoat(){
     ctx.save();
-    ctx.translate(boatX, surfaceY-6);
-    ctx.fillStyle = '#f97316';
-    ctx.beginPath();
-    ctx.moveTo(-40,0); ctx.lineTo(40,0); ctx.lineTo(22,14); ctx.lineTo(-22,14); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ffe4b5';
-    ctx.fillRect(-3,-18,6,18);
+    ctx.translate(boatX, surfaceY - 6);
+    const lvl = currentLevelIndex ?? 0;
+
+    if (lvl === 0) {
+      ctx.fillStyle = '#92400e';
+      ctx.beginPath();
+      ctx.moveTo(-40, 0);
+      ctx.lineTo(40, 0);
+      ctx.lineTo(24, 14);
+      ctx.lineTo(-24, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e5e7eb';
+      ctx.fillRect(-3, -16, 6, 16);
+    } else if (lvl === 1) {
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(-44, 2);
+      ctx.lineTo(44, 0);
+      ctx.lineTo(26, 16);
+      ctx.lineTo(-26, 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e5e7eb';
+      ctx.fillRect(-10, -18, 22, 18);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-7, -15, 16, 10);
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(30, 2, 10, 12);
+    } else if (lvl === 2) {
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.moveTo(-50, 2);
+      ctx.lineTo(50, 0);
+      ctx.lineTo(32, 18);
+      ctx.lineTo(-32, 18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e5e7eb';
+      ctx.fillRect(-18, -22, 36, 22);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-14, -19, 14, 10);
+      ctx.fillRect(2, -19, 14, 10);
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -22);
+      ctx.lineTo(0, -32);
+      ctx.stroke();
+    } else if (lvl === 3) {
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(-80, 6);
+      ctx.lineTo(80, 0);
+      ctx.lineTo(60, 24);
+      ctx.lineTo(-60, 24);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e5e7eb';
+      ctx.fillRect(-30, -26, 60, 26);
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillRect(-24, -22, 16, 12);
+      ctx.fillRect(8, -22, 16, 12);
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -26);
+      ctx.lineTo(0, -46);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, -46, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#facc15';
+      ctx.fill();
+    } else {
+      ctx.save();
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.ellipse(0, 10, 48, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#e5e7eb';
+      ctx.beginPath();
+      ctx.ellipse(0, -2, 32, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#38bdf8';
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.ellipse(0, -12, 18, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#facc15';
+      for (let i = -4; i <= 4; i++) {
+        ctx.beginPath();
+        ctx.arc(i * 10, 16, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
     ctx.restore();
   }
 
@@ -1181,8 +1408,53 @@
     ctx.restore();
   }
 
+  function drawAlienFish(f) {
+    ctx.save();
+    ctx.translate(f.x, f.y);
+    ctx.scale(f.dir,1);
+
+    ctx.fillStyle = '#22c55e';
+    ctx.beginPath();
+    ctx.ellipse(0,0,f.size*1.1, f.size*0.6, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = '#bbf7d0';
+    ctx.beginPath();
+    ctx.arc(f.size*0.3, -2, 4, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#020617';
+    ctx.beginPath();
+    ctx.arc(f.size*0.3, -2, 2, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#a5b4fc';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-f.size*0.2, -f.size*0.3);
+    ctx.lineTo(-f.size*0.2, -f.size*0.7);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(-f.size*0.2, -f.size*0.7, 3, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(f.size*0.2, -f.size*0.3);
+    ctx.lineTo(f.size*0.2, -f.size*0.7);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(f.size*0.2, -f.size*0.7, 3, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
   function drawFishes(){
     for (const f of fishes) {
+      if (currentLevelIndex === 4) {
+        drawAlienFish(f);
+        continue;
+      }
+
       if (f.type === 'jelly') {
         ctx.save();
         ctx.translate(f.x, f.y);
@@ -1250,38 +1522,44 @@
     }
   }
 
-  function drawStartScreen(){
-    if (gameStarted || gameOver) return;
-    ctx.fillStyle = 'rgba(15,23,42,0.65)';
-    ctx.fillRect(0,0,W,H);
+  function drawStartScreen() {
+    if (gameStarted || gameOver || !isLevelScreen) return;
+    ctx.fillStyle = 'rgba(15,23,42,0.75)';
+    ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center';
-
+    const lvl = LEVELS[currentLevelIndex];
+    const next = currentLevelIndex + 1;
+    const nextGoal = LEVELS[next] ? LEVELS[next].goal : null;
     ctx.fillStyle = '#facc15';
-    ctx.font = 'bold 46px system-ui';
-    ctx.fillText('PESCA RETRO', W/2, H/2 - 40);
-
+    ctx.font = 'bold 40px system-ui';
+    ctx.fillText(`Nivel ${currentLevelIndex + 1}: ${lvl.name}`, W / 2, H / 2 - 60);
     ctx.fillStyle = '#e5e7eb';
     ctx.font = '18px system-ui';
-    ctx.fillText('Pulsa ESPACIO, ENTER o 🎣 para empezar', W/2, H/2 + 8);
+    if (nextGoal != null)
+      ctx.fillText(`Meta para subir: ${nextGoal} puntos`, W / 2, H / 2 - 20);
+    else
+      ctx.fillText('Último nivel: disfruta el espacio ✨', W / 2, H / 2 - 20);
     ctx.font = '14px system-ui';
-    ctx.fillText('Atrapa peces, mejora tu equipo y entra al top 5.', W/2, H/2 + 40);
+    if (levelScreenMode === 'start')
+      ctx.fillText('Pulsa ESPACIO o ENTER para empezar', W / 2, H / 2 + 20);
+    else {
+      ctx.fillText('1) Continuar al siguiente nivel: ESPACIO / ENTER', W / 2, H / 2 + 10);
+      ctx.fillText('2) Guardar y salir: tecla G', W / 2, H / 2 + 40);
+    }
   }
 
   function drawNameEntry(){
     if (!enteringName) return;
     ctx.fillStyle = 'rgba(15,23,42,0.9)';
     ctx.fillRect(0,0,W,H);
-
     ctx.textAlign = 'center';
     ctx.fillStyle = '#facc15';
     ctx.font = 'bold 40px system-ui';
     ctx.fillText('¡NUEVO TOP 5!', W/2, H/2 - 60);
-
     ctx.fillStyle = '#e5e7eb';
     ctx.font = '18px system-ui';
     ctx.fillText(`Puntos: ${pendingScore}`, W/2, H/2 - 20);
     ctx.fillText('Escribe tus iniciales (A-Z), ENTER para guardar', W/2, H/2 + 10);
-
     let shown;
     if (isTouch && nameTouch && nameTouch.style.display !== 'none') {
       shown = touchNameLetters.join('');
@@ -1297,10 +1575,8 @@
     ctx.fillStyle = 'rgba(15,23,42,.8)'; ctx.fillRect(0,0,W,H);
     ctx.fillStyle = '#e5e7eb'; ctx.textAlign = 'center';
     ctx.font = 'bold 42px system-ui'; ctx.fillText('Juego terminado', W/2, H/2-20);
-
     const top = highscores[0];
     const bestText = top ? `${top.name} ${top.score}` : '--- 0';
-
     ctx.font = 'bold 20px system-ui';
     ctx.fillText(`Puntos: ${score}  ·  Mejor: ${bestText}`, W/2, H/2+18);
     ctx.font = '16px system-ui';
@@ -1335,16 +1611,9 @@
     requestAnimationFrame(loop);
   }
 
-  // --------- Controles touch ----------
   function addHoldButton(btn, key){
-    const down = (e) => {
-      e.preventDefault();
-      keys.add(key);
-    };
-    const up = (e) => {
-      e.preventDefault();
-      keys.delete(key);
-    };
+    const down = (e) => { e.preventDefault(); keys.add(key); };
+    const up = (e) => { e.preventDefault(); keys.delete(key); };
     btn.addEventListener('touchstart', down);
     btn.addEventListener('touchend', up);
     btn.addEventListener('touchcancel', up);
@@ -1353,10 +1622,7 @@
     btn.addEventListener('mouseleave', up);
   }
 
-  if (isTouch && touchControls) {
-    touchControls.style.display = 'flex';
-  }
-
+  if (isTouch && touchControls) touchControls.style.display = 'flex';
   if (btnLeft && btnRight) {
     addHoldButton(btnLeft, 'a');
     addHoldButton(btnRight, 'd');
@@ -1366,6 +1632,12 @@
     const tapCast = (e) => {
       e.preventDefault();
       if (!audioCtx) initAudio();
+      if (isLevelScreen && !gameOver) {
+        isLevelScreen = false;
+        gameStarted = true;
+        startTimer();
+        return;
+      }
       if (!gameStarted && !gameOver) {
         gameStarted = true;
         startTimer();
@@ -1390,7 +1662,6 @@
     btnRestart.addEventListener('touchstart', tapRestart);
   }
 
-  // --------- Overlay de iniciales touch ----------
   function renderTouchName() {
     for (let i = 0; i < 3; i++) {
       nameLettersEls[i].textContent = touchNameLetters[i];
@@ -1406,13 +1677,12 @@
         let code = touchNameLetters[slot].charCodeAt(0);
         if (dir === 'up') code++;
         else code--;
-        if (code > 90) code = 65;  // Z -> A
-        if (code < 65) code = 90;  // A -> Z
+        if (code > 90) code = 65;
+        if (code < 65) code = 90;
         touchNameLetters[slot] = String.fromCharCode(code);
         renderTouchName();
       });
     });
-
     if (nameOkBtn) {
       nameOkBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -1424,10 +1694,10 @@
     }
   }
 
-  // Arranque inicial
-  loadHighscores();
+  // Arranque
+  loadProgress();
   resetGameState();
-  startTimer();
+  loadHighscores();
   requestAnimationFrame(loop);
   </script>
 </body>
