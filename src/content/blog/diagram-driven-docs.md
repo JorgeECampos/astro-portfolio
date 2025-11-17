@@ -42,7 +42,7 @@ PlantUML shines for architectural or component-level views where reuse and templ
 
 ```
 @startuml
-package "Bizee Platform" {
+package "Company_A Platform" {
   [Website] --> [API Gateway]
   [API Gateway] --> [Nebula Service]
   [Nebula Service] --> [Quantum Processor]

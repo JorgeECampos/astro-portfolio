@@ -3,3 +3,16 @@
 @tailwind utilities;
 .prose :where(h2,h3){scroll-margin-top:6rem}
 .prose a{ text-decoration: none }
+
+/* Force Mermaid SVG size */
+.mermaid svg {
+  width: 100% !important;
+  max-width: 1200px !important;
+  height: auto !important;
+}
+
+/* Center it */
+.mermaid {
+  display: flex !important;
+  justify-content: center !important;
+}

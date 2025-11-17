@@ -1,48 +1,235 @@
 ---
 import Base from '../../layouts/Base.astro';
 
+
 const templates = [
   {
     app: 'A1',
     name: 'System Architecture Document – A1',
-    url: '/templates/A1-sad.docx'
+    description: 'Generated automatically from the single SAD base document using A1-specific properties.'
   },
   {
     app: 'B1',
-    name: 'System Architecture Document – B1',
-    url: '/templates/B1-sad.docx'
+    name: 'System Design Document – B1',
+    url: '/api/sds-B1.docx',
+    description: 'Generated automatically from the single SDS base document using B1-specific properties.'
   }
 ];
 ---
 
 <Base title="SDLC Policy Framework">
-  <section class="max-w-5xl mx-auto py-16 px-6">
+  <section class="prose prose-indigo dark:prose-invert max-w-4xl mx-auto py-10">
     <h1 class="text-4xl font-bold text-indigo-600 mb-4">
       📘 SDLC Policy Framework – Single-Source Templates
     </h1>
 
     <p class="text-lg text-gray-700 dark:text-gray-300 mb-8">
       This framework uses a single source document and app-specific properties to generate
-      multiple policy and architecture templates (SAD, SDP, etc.) through GitHub Actions
-      and Pandoc. The downloads below are generated automatically from the same base file.
+      multiple policy and architecture templates (SAD, SDS, etc.).
     </p>
 
+    <h2>Case Study: Creating a Single-Source SDLC Documentation Framework</h2>
+
+    <p>
+      This project originated from a real-world challenge inside a regulated software environment.
+      Multiple product teams maintained separate versions of critical SDLC documents—
+      including System Architecture Documents (SAD), Software Design Specifications (SDS),
+      Verification Plans, and Release Records. Over time, these documents drifted in format,
+      content quality, and compliance alignment, even though they were all based on the same
+      underlying engineering standards and requirements.
+    </p>
+
+    <p>
+      To solve this, I designed a single-source documentation framework that generates
+      architecture and design documents automatically using one master template. Instead of
+      manually creating a full document for every application, teams only provide a small JSON
+      configuration that captures the project-specific details (architecture, workflows,
+      interfaces, SOUP/OTS components, etc.).
+    </p>
+
+    <h3>How the Framework Works</h3>
+    <p>
+      The process uses a <strong>single master SAD/SDS template</strong> that contains the required SDLC
+      sections, structure, formatting, and compliance language:
+    </p>
+
+
+
+    <!-- Diagrama Mermaid -->
+    <div class="my-10 flex justify-center">
+  <pre class="mermaid">
+flowchart TD
+  %% --------- CUSTOM STYLES ----------
+  classDef step fill:#1e293b,stroke:#38bdf8,stroke-width:2,color:#f0f9ff,font-size:16px;
+  classDef engine fill:#0f172a,stroke:#818cf8,stroke-width:2,color:#e0e7ff,font-size:16px;
+  classDef output fill:#064e3b,stroke:#34d399,stroke-width:2,color:#d1fae5,font-size:16px;
+
+  %% --------- RELEASE FLOW -----------
+  R["📦 <b>New Release (N)</b>"]:::step
+  F["🧩 Select Features"]:::step
+  Req["📝 Define / Update Requirements"]:::step
+  Props["🛠️ Update App Properties<br/>(A1.json, B1.json...)"]:::step
+
+  R --> F --> Req --> Props
+
+  %% --------- TEMPLATE ENGINE --------
+  Base["📚 Master SDLC Templates<br/>(SAD, SDS, SVP, etc.)"]:::engine
+  Gen["⚙️ Document Generator<br/>(API → Docx Engine)"]:::engine
+
+  Props --> Gen
+  Base --> Gen
+
+  %% --------- FINAL OUTPUT ----------
+  Docs["📄 <b>Updated Docs for Release N</b><br/>SAD-rev001, SDS-rev001, SVP, ..."]:::output
+
+  Gen --> Docs
+  </pre>
+</div>
+
+
+    <p>
+      An API-based generator merges the base template with the project’s properties and outputs
+      a fully formatted Word document (DOCX). This guarantees consistency across all apps,
+      eliminates duplicate work, and keeps documentation aligned with the latest SDLC standards.
+    </p>
+
+    <h3>Where These Documents Are Used in the SDLC</h3>
+    <ul>
+      <li><strong>Requirements Phase</strong> – SAD structure is established to match system-level needs</li>
+      <li><strong>Architecture & Design</strong> – SAD and SDS are generated for engineering review</li>
+      <li><strong>Implementation</strong> – SDS supports development with module-level detail</li>
+      <li><strong>Verification</strong> – SAD/SDS provide the traceability backbone for SVP/SVR</li>
+      <li><strong>Release</strong> – Documents are version-controlled and included in the release package</li>
+      <li><strong>Maintenance</strong> – Future changes only modify the app-specific JSON, not the full document</li>
+    </ul>
+
+    <p>
+      This framework significantly reduced preparation time, improved cross-team alignment, and
+      ensured audit-ready documentation across every release cycle.
+    </p>
+
+    <!-- Download templates dentro del mismo section -->
     <h2 class="text-2xl font-semibold text-indigo-500 mb-4">Download Templates</h2>
+
     <div class="grid md:grid-cols-2 gap-6">
-      {templates.map((t) => (
-        <article class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
-          <h3 class="text-xl font-semibold mb-2">{t.name}</h3>
-          <p class="text-sm text-gray-500 mb-4">
-            Generated from the single SAD base document using app-specific properties.
-          </p>
-          <a
-            href={t.url}
-            class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
-          >
-            Download
-          </a>
-        </article>
-      ))}
+      {/* A1 – uses POST + JSON */}
+      <article class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
+        <h3 class="text-xl font-semibold mb-2">{templates[0].name}</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          {templates[0].description}
+        </p>
+        <button
+          type="button"
+          onclick="window.generateSadA1()"
+          class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
+        >
+          Download
+        </button>
+      </article>
+
+      {/* B1 */}
+      <article class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
+        <h3 class="text-xl font-semibold mb-2">{templates[1].name}</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          {templates[1].description}
+        </p>
+        <a
+          href={templates[1].url}
+          class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
+        >
+          Download
+        </a>
+      </article>
     </div>
   </section>
+
+  <script>
+    // Botón SAD A1
+    window.generateSadA1 = async () => {
+      const payload = {
+        title: "A1 System Architecture Document",
+        owner: "Engineering",
+        version: "Rev 001",
+        projectCode: "SAD-A1",
+        scopeText: "This document describes the architecture of the A1 Application, including its components, integrations, and data flows within the SDLC.",
+        references: [
+          ["SDLC-001", "SDLC Policy & Procedure", "1.0"],
+          ["SRS-A1", "Software Requirements Specification – A1", "1.0"],
+          ["SDS-A1", "Software Design Specification – A1", "1.0"]
+        ],
+        acronyms: [
+          ["API", "Application Programming Interface"],
+          ["CI/CD", "Continuous Integration / Continuous Deployment"],
+          ["DB", "Database"],
+          ["OTS", "Off-the-Shelf Software"]
+        ],
+        role: "The A1 Application provides a user interface and backend API for managing data submissions, retrieval, and user interactions.",
+        intendedUsers: "End users, administrators, and internal support teams.",
+        intendedPopulation: "General user population without specific restrictions.",
+        analysisMethodology: "The system does not perform predictive analysis; all logic is deterministic.",
+        aiUsage: "No AI or ML models are used in this software.",
+        hwPlatforms: "Browsers, cloud servers, and any device capable of running a modern web client.",
+        swPlatforms: "Node.js backend, browser-based frontend, API gateway, cloud network components.",
+        otsSummary: "The system uses OTS components such as runtime environments, third-party libraries, and cloud services.",
+        finalVersion: "Final version controlled through Release Notes and CI/CD metadata.",
+        inputs: "User credentials, form submissions, API requests.",
+        outputs: "UI responses, processed data, stored records, logs, notifications.",
+        workflow: "User interacts with UI → API → backend processing → database → response.",
+        interoperability: "System integrates with external services via REST APIs.",
+        featureList: [
+          "User authentication",
+          "Dashboard and visualization",
+          "CRUD operations",
+          "API integration",
+          "Logging and monitoring"
+        ],
+        infraText: "Cloud infrastructure consisting of compute, storage, load balancing, and network services.",
+        archOverview: "The system follows a three-tier architecture: presentation, application, and data layers.",
+        integrationArch: "HTTP REST communication between components; backend interacts with database and external APIs.",
+        processWorkflow: "Authentication, CRUD, caching, error handling, and audit logging.",
+        directSoupIntro: "The following direct components are integrated inside the codebase.",
+        directSoup: [
+          ["Express.js", "Open-source", "Backend routing"],
+          ["React", "Open-source", "Frontend rendering"]
+        ],
+        externalSoupIntro: "These external components are required for normal operation.",
+        externalSoup: [
+          ["Chrome", "Google", "Client environment"],
+          ["Linux OS", "Open-source", "Server environment"]
+        ],
+        attachmentsText: "Architecture diagrams, deployment diagrams, and dependency lists."
+      };
+
+      const res = await fetch("/api/sad-A1.docx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        alert("Failed to generate SAD");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "SAD-A1.docx";
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const script = document.createElement('script');
+      script.src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
+      script.onload = () => {
+        // @ts-ignore
+        window.mermaid.initialize({ startOnLoad: true });
+      };
+      document.body.appendChild(script);
+    });
+
+    
+  </script>
 </Base>

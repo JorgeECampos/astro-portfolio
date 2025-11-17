@@ -1,0 +1,38 @@
+{
+  "title": "B1 Software Design Specification",
+  "owner": "Engineering",
+  "version": "Rev 001",
+  "sdsId": "SDS-B1",
+
+  "purpose": "This Software Design Specification (SDS) describes the detailed design of the B1 Application, including modules, interfaces, data handling, and system interactions. It ensures that development, testing, and maintenance follow a consistent and clearly documented design model within the SDLC framework.",
+
+  "scopeText": "This SDS applies to all components of the B1 Application including frontend, backend services, and supporting infrastructure. It covers design decisions, interfaces, error handling, data structures, and modular breakdown.",
+
+  "references": [
+    ["SDLC-001", "SDLC Policy & Procedure", "1.0"],
+    ["SRS-B1", "Software Requirements Specification – B1", "1.0"],
+    ["ARC-STD", "Architecture Standards & Guidelines", "1.0"]
+  ],
+
+  "definitions": [
+    ["API", "Application Programming Interface"],
+    ["DTO", "Data Transfer Object"],
+    ["ORM", "Object-Relational Mapping"],
+    ["SDS", "Software Design Specification"]
+  ],
+
+  "overview": "The B1 Application is designed using a modular layered architecture that separates presentation, application logic, and data access. The system emphasizes maintainability, testability, and scalability across cloud-hosted environments. This section provides a high-level overview of the system design.",
+
+  "designIntro": "This section describes each module, its purpose, dependencies, interactions, and any special considerations for development and maintenance.",
+
+  "designSections": [
+    ["Authentication Module", "Handles login, JWT validation, session lifetime, password reset flows, and integration with the identity provider."],
+    ["API Gateway Layer", "Central routing layer for API requests, applying request validation, throttling, and logs."],
+    ["Business Logic Layer", "Implements all core application behaviors including validation, processing, and orchestration across system components."],
+    ["Data Access Layer", "Implements CRUD operations through ORM, ensures data integrity, and manages database migrations."],
+    ["Frontend UI", "Client-side views built with modern frameworks; communicates with backend using secured REST endpoints."],
+    ["Error & Event Logging", "Centralized logging handlers for audit logs, failure logs, and performance tracking."]
+  ],
+
+  "attachmentsText": "Component diagrams, sequence diagrams, API specifications, and traceability worksheets."
+}

@@ -1,0 +1,66 @@
+{
+  "title": "A1 System Architecture Document",
+  "owner": "Engineering",
+  "version": "Rev 001",
+  "projectCode": "SAD-A1",
+
+  "scopeText": "This document describes the architecture of the A1 Application, including its components, integrations, and data flows within the SDLC.",
+
+  "references": [
+    ["SDLC-001", "SDLC Policy & Procedure", "1.0"],
+    ["SRS-A1", "Software Requirements Specification – A1", "1.0"],
+    ["SDS-A1", "Software Design Specification – A1", "1.0"]
+  ],
+
+  "acronyms": [
+    ["API", "Application Programming Interface"],
+    ["CI/CD", "Continuous Integration / Continuous Deployment"],
+    ["DB", "Database"],
+    ["OTS", "Off-the-Shelf Software"]
+  ],
+
+  "role": "The A1 Application provides a user interface and backend API for managing data submissions, retrieval, and user interactions.",
+  "intendedUsers": "End users, administrators, and internal support teams.",
+  "intendedPopulation": "General user population without specific restrictions.",
+  "analysisMethodology": "The system does not perform predictive analysis; all logic is deterministic.",
+  "aiUsage": "No AI or ML models are used in this software.",
+
+  "hwPlatforms": "Browsers, cloud servers, and any device capable of running a modern web client.",
+  "swPlatforms": "Node.js backend, browser-based frontend, API gateway, cloud network components.",
+
+  "otsSummary": "The system uses OTS components such as runtime environments, third-party libraries, and cloud services.",
+  "finalVersion": "Final version controlled through Release Notes and CI/CD metadata.",
+
+  "inputs": "User credentials, form submissions, API requests.",
+  "outputs": "UI responses, processed data, stored records, logs, notifications.",
+  "workflow": "User interacts with UI → API → backend processing → database → response.",
+  "interoperability": "System integrates with external services via REST APIs.",
+
+  "featureList": [
+    "User authentication",
+    "Dashboard and visualization",
+    "CRUD operations",
+    "API integration",
+    "Logging and monitoring"
+  ],
+
+  "infraText": "Cloud infrastructure consisting of compute, storage, load balancing, and network services.",
+
+  "archOverview": "The system follows a three-tier architecture: presentation, application, and data layers.",
+  "integrationArch": "HTTP REST communication between components; backend interacts with database and external APIs.",
+  "processWorkflow": "Authentication, CRUD, caching, error handling, and audit logging.",
+
+  "directSoupIntro": "The following direct components are integrated inside the codebase.",
+  "directSoup": [
+    ["Express.js", "Open-source", "Backend routing"],
+    ["React", "Open-source", "Frontend rendering"]
+  ],
+
+  "externalSoupIntro": "These external components are required for normal operation.",
+  "externalSoup": [
+    ["Chrome", "Google", "Client environment"],
+    ["Linux OS", "Open-source", "Server environment"]
+  ],
+
+  "attachmentsText": "Architecture diagrams, deployment diagrams, and dependency lists."
+}
