@@ -6,7 +6,7 @@ info:
     Simple API to generate and validate Mexican RFCs (Registro Federal de Contribuyentes).
     This service is for testing and educational purposes only and does not replace the official RFC issued by SAT.
 servers:
-  - url: https://tu-dominio.vercel.app
+  - url: https://jorgecamposdocs.vercel.app/rfc
 
 paths:
   /api/rfc:
