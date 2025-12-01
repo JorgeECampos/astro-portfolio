@@ -1,0 +1,206 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="RFC Generator & Validator">
+  <section class="max-w-xl mx-auto py-10 px-4 space-y-10">
+    <h1 class="text-3xl font-bold mb-4 text-center">RFC Tools – Validation & Test Generator</h1>
+
+    <!-- ========================= -->
+    <!-- RFC VALIDATOR SECTION    -->
+    <!-- ========================= -->
+    <div class="space-y-4 bg-slate-900/40 p-5 rounded-xl border border-slate-700">
+      <h2 class="text-xl font-semibold">RFC Validator</h2>
+      <p class="text-sm text-gray-400">
+        Enter an existing RFC to validate its structure and check digit against your API.
+      </p>
+
+      <form id="rfc-validate-form" class="space-y-4">
+        <label class="flex flex-col text-sm gap-1">
+          RFC
+          <input
+            name="rfc"
+            type="text"
+            required
+            class="px-3 py-2 rounded-md bg-slate-900 border border-slate-600 focus:outline-none focus:ring w-full"
+            placeholder="E.g. CAGJ9502262Z4"
+          />
+        </label>
+
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold"
+        >
+          Validate RFC
+        </button>
+      </form>
+
+      <div id="rfc-validate-output" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-4 text-sm space-y-2">
+        <h3 class="text-lg font-semibold mb-1">Validation Result</h3>
+        <p><strong>RFC:</strong> <span id="validate-rfc-value"></span></p>
+        <p><strong>Status:</strong> <span id="validate-rfc-status"></span></p>
+        <pre id="validate-rfc-json" class="mt-2 text-xs bg-black/40 p-2 rounded-md overflow-x-auto"></pre>
+      </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- RFC GENERATOR SECTION    -->
+    <!-- ========================= -->
+    <div class="space-y-4 bg-slate-900/40 p-5 rounded-xl border border-slate-700">
+      <h2 class="text-xl font-semibold">RFC Generator (Test Only)</h2>
+      <p class="text-sm text-gray-400">
+        Generate a SAT-like RFC for testing/demo purposes and validate it through your API.
+      </p>
+
+      <form id="rfc-form" class="space-y-4">
+        <div class="grid gap-3">
+          <label class="flex flex-col text-sm gap-1">
+            First Name(s)
+            <input
+              name="nombre"
+              type="text"
+              required
+              class="px-3 py-2 rounded-md bg-slate-900 border border-slate-600 focus:outline-none focus:ring w-full"
+            />
+          </label>
+
+          <label class="flex flex-col text-sm gap-1">
+            Paternal Last Name
+            <input
+              name="apellidoP"
+              type="text"
+              required
+              class="px-3 py-2 rounded-md bg-slate-900 border border-slate-600 focus:outline-none focus:ring w-full"
+            />
+          </label>
+
+          <label class="flex flex-col text-sm gap-1">
+            Maternal Last Name (Optional)
+            <input
+              name="apellidoM"
+              type="text"
+              class="px-3 py-2 rounded-md bg-slate-900 border border-slate-600 focus:outline-none focus:ring w-full"
+            />
+          </label>
+
+          <label class="flex flex-col text-sm gap-1">
+            Date of Birth
+            <input
+              name="fecha"
+              type="date"
+              required
+              class="px-3 py-2 rounded-md bg-slate-900 border border-slate-600 focus:outline-none focus:ring w-full"
+            />
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold"
+        >
+          Generate & Validate RFC
+        </button>
+      </form>
+
+      <div id="rfc-output" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-4 text-sm space-y-2">
+        <h3 class="text-lg font-semibold mb-1">Generated RFC</h3>
+        <p><strong>RFC:</strong> <span id="rfc-value"></span></p>
+        <p><strong>Base (4 letters + date):</strong> <span id="rfc-base"></span></p>
+        <p><strong>Homoclave:</strong> <span id="rfc-homo"></span></p>
+        <p><strong>Check Digit:</strong> <span id="rfc-check"></span></p>
+        <p><strong>Validation:</strong> <span id="rfc-valid"></span></p>
+        <pre id="rfc-json" class="mt-2 text-xs bg-black/40 p-2 rounded-md overflow-x-auto"></pre>
+      </div>
+
+      <p class="text-xs text-gray-500">
+        ⚠️ This generator produces SAT-like RFCs for testing and educational use only. It does not replace the official RFC issued by SAT.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    /* ================== RFC VALIDATOR ================== */
+    const validateForm = document.getElementById("rfc-validate-form");
+    const validateBox = document.getElementById("rfc-validate-output");
+    const validateRfcSpan = document.getElementById("validate-rfc-value");
+    const validateStatusSpan = document.getElementById("validate-rfc-status");
+    const validateJsonPre = document.getElementById("validate-rfc-json");
+
+    validateForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(validateForm);
+      const rfc = formData.get("rfc");
+
+      try {
+        const res = await fetch(`/api/rfc?rfc=${encodeURIComponent(rfc)}`);
+        const data = await res.json();
+
+        validateRfcSpan.textContent = rfc;
+        validateStatusSpan.textContent = data.valid
+          ? "VALID ✅"
+          : `INVALID ❌ (${data.reason || "Unknown reason"})`;
+
+        validateJsonPre.textContent = JSON.stringify(data, null, 2);
+        validateBox.classList.remove("hidden");
+      } catch (err) {
+        alert("Error validating RFC.");
+      }
+    });
+
+    /* ================== RFC GENERATOR ================== */
+    const form = document.getElementById("rfc-form");
+    const outputBox = document.getElementById("rfc-output");
+    const rfcSpan = document.getElementById("rfc-value");
+    const baseSpan = document.getElementById("rfc-base");
+    const homoSpan = document.getElementById("rfc-homo");
+    const checkSpan = document.getElementById("rfc-check");
+    const validSpan = document.getElementById("rfc-valid");
+    const jsonPre = document.getElementById("rfc-json");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const params = new URLSearchParams();
+
+      params.set("nombre", formData.get("nombre"));
+      params.set("apellidoP", formData.get("apellidoP"));
+      params.set("apellidoM", formData.get("apellidoM") || "");
+      params.set("fecha", formData.get("fecha"));
+
+      try {
+        // 1) Generate RFC
+        const genRes = await fetch(`/api/rfc/generate?${params.toString()}`);
+        const genData = await genRes.json();
+
+        if (!genRes.ok) {
+          alert(genData.error || "Error generating RFC");
+          return;
+        }
+
+        // 2) Validate generated RFC
+        const valRes = await fetch(`/api/rfc?rfc=${encodeURIComponent(genData.rfc)}`);
+        const valData = await valRes.json();
+
+        rfcSpan.textContent = genData.rfc;
+        baseSpan.textContent = genData.base10;
+        homoSpan.textContent = genData.homoclave;
+        checkSpan.textContent = genData.checkDigit;
+        validSpan.textContent = valData.valid
+          ? "VALID ✅"
+          : `INVALID ❌ (${valData.reason || "Unknown reason"})`;
+
+        jsonPre.textContent = JSON.stringify(
+          { generate: genData, validate: valData },
+          null,
+          2
+        );
+
+        outputBox.classList.remove("hidden");
+      } catch (err) {
+        alert("Error calling RFC API.");
+      }
+    });
+  </script>
+</Base>

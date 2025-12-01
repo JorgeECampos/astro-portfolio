@@ -14,6 +14,17 @@ const projects = [
     ]
   },
   {
+    title: "🧾 RFC Validation & Generator API",
+    summary:
+      "Small Astro-based microservice that exposes two HTTP endpoints to validate existing Mexican RFCs and generate SAT-like test RFCs. Includes a simple UI at /rfc and an OpenAPI spec ready for ReadMe.",
+    tags: ["API", "Astro", "Node", "OpenAPI"],
+    links: [
+      { label: "Live RFC Tool", url: "/rfc" }
+      // cuando tengas ReadMe, puedes añadir:
+      // { label: "API Docs", url: "https://tu-subdominio.readme.io/" }
+    ]
+  },
+  {
     title: "📦 Business Platform – Front-End Overview",
     summary:
       "A modular, service-oriented web platform designed to handle entity creation, document automation, and tax integrations through APIs.",
@@ -27,8 +38,6 @@ const projects = [
     tags: ["Policy", "Quality", "CI/CD"],
     links: [{ label: "View Case Study", url: "/case-studies/policy-rollout" }]
   },
-
-  // 🔥 Hidden until ready
   {
     title: "⚙️ API & SDK Documentation Hub",
     summary:
@@ -37,6 +46,8 @@ const projects = [
     links: [{ label: "Read More", url: "/case-studies/api-docs" }],
     hidden: true
   },
+
+  // 🔥 Hidden until ready
   {
     title: "🔒 Security Validation Checklist",
     summary:
@@ -60,8 +71,8 @@ const projects = [
   <section class="text-center mb-12">
     <h1 class="text-4xl font-bold text-indigo-600 mb-4">Highlighted Projects</h1>
     <p class="max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
-      These projects showcase how I blend documentation, process design, and compliance alignment
-      to improve developer efficiency and audit readiness.
+      These projects showcase how I blend documentation, process design, API design,
+      and compliance alignment to improve developer efficiency and audit readiness.
     </p>
   </section>
 

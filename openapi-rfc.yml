@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: RFC API
+  version: "1.0.0"
+  description: >
+    Simple API to generate and validate Mexican RFCs (Registro Federal de Contribuyentes).
+    This service is for testing and educational purposes only and does not replace the official RFC issued by SAT.
+servers:
+  - url: https://tu-dominio.vercel.app
+
+paths:
+  /api/rfc:
+    get:
+      summary: Validate an existing RFC
+      description: >
+        Validates the structure and check digit of an RFC code.
+        Does not query SAT or any government database.
+      parameters:
+        - in: query
+          name: rfc
+          schema:
+            type: string
+            example: CAGJ9502262Z4
+          required: true
+          description: RFC to validate.
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rfc:
+                    type: string
+                    example: CAGJ9502262Z4
+                  valid:
+                    type: boolean
+                    example: true
+                  reason:
+                    type: string
+                    nullable: true
+                    example: "Dígito verificador incorrecto"
+
+  /api/rfc/generate:
+    get:
+      summary: Generate a simulated RFC
+      description: >
+        Generates a simulated RFC from name and birth date, using a SAT-like algorithm for
+        the base and check digit. The homoclave is approximated and should be used for
+        testing only.
+      parameters:
+        - in: query
+          name: nombre
+          required: true
+          schema:
+            type: string
+            example: JORGE
+          description: First name(s).
+        - in: query
+          name: apellidoP
+          required: true
+          schema:
+            type: string
+            example: CAMPOS
+          description: Paternal surname.
+        - in: query
+          name: apellidoM
+          required: false
+          schema:
+            type: string
+            example: GARCIA
+          description: Maternal surname (optional).
+        - in: query
+          name: fecha
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "1995-02-26"
+          description: Date of birth in `YYYY-MM-DD` format.
+      responses:
+        "200":
+          description: Generated RFC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rfc:
+                    type: string
+                    example: CAGJ950226PM4
+                  base10:
+                    type: string
+                    example: CAGJ950226
+                  homoclave:
+                    type: string
+                    example: PM
+                  checkDigit:
+                    type: string
+                    example: "4"
