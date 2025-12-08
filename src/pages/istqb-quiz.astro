@@ -1,0 +1,724 @@
+---
+import Base from '../layouts/Base.astro';
+import exam1 from '../data/tae-questions.json';
+import exam2 from '../data/tae-questions2.json';
+
+// Normalize questions from both exams
+function normalizeQuestions(exam: any) {
+  return exam.questions.map((q: any) => ({
+    id: q.question_number,
+    text: q.question_text,
+    options: Object.entries(q.options).map(([key, text]) => ({ key, text })),
+    correct: Array.isArray(q.correct_answer) ? q.correct_answer : [q.correct_answer],
+    explanation: q.explanation,
+    points: q.points,
+    learningObjective: q.learning_objective,
+    source: exam.exam_info.version || 'v1.0'
+  }));
+}
+
+const exam1Questions = normalizeQuestions(exam1);
+const exam2Questions = normalizeQuestions(exam2);
+
+const examsData = {
+  exam1: {
+    info: exam1.exam_info,
+    questions: exam1Questions
+  },
+  exam2: {
+    info: exam2.exam_info,
+    questions: exam2Questions
+  }
+};
+---
+
+<Base title="ISTQB TAE Quiz">
+  <main class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+      
+      <!-- Exam Selection Screen -->
+      <div id="exam-selector" class="space-y-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+          <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            ISTQB TAE Practice Quiz
+          </h1>
+          <p class="text-slate-600 dark:text-slate-400 mb-6">
+            Choose your exam mode to begin
+          </p>
+
+          <div class="grid gap-4">
+            <!-- Exam 1 -->
+            <button
+              onclick="window.selectExam('exam1')"
+              class="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl p-6 text-left transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+            >
+              <div class="relative z-10">
+                <div class="flex items-start justify-between mb-2">
+                  <h3 class="text-xl font-bold">Exam Set 1 (Original)</h3>
+                  <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+                    {exam1.exam_info.total_questions} questions
+                  </span>
+                </div>
+                <p class="text-blue-100 text-sm mb-3">
+                  {exam1.exam_info.title}
+                </p>
+                <div class="flex gap-3 text-xs text-blue-100">
+                  <span>📅 {exam1.exam_info.date}</span>
+                  <span>📋 Version {exam1.exam_info.version}</span>
+                </div>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-blue-600/0 to-blue-600/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300"></div>
+            </button>
+
+            <!-- Exam 2 -->
+            <button
+              onclick="window.selectExam('exam2')"
+              class="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl p-6 text-left transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+            >
+              <div class="relative z-10">
+                <div class="flex items-start justify-between mb-2">
+                  <h3 class="text-xl font-bold">Exam Set 2 (v2.0)</h3>
+                  <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+                    {exam2.exam_info.total_questions} questions
+                  </span>
+                </div>
+                <p class="text-purple-100 text-sm mb-3">
+                  {exam2.exam_info.title}
+                </p>
+                <div class="flex gap-3 text-xs text-purple-100">
+                  <span>📅 {exam2.exam_info.date}</span>
+                  <span>📋 Version {exam2.exam_info.version}</span>
+                </div>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-purple-600/0 to-purple-600/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300"></div>
+            </button>
+
+            <!-- Random Mix -->
+            <button
+              onclick="window.selectExam('random')"
+              class="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl p-6 text-left transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+            >
+              <div class="relative z-10">
+                <div class="flex items-start justify-between mb-2">
+                  <h3 class="text-xl font-bold">🎲 Random Mix</h3>
+                  <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+                    40 questions
+                  </span>
+                </div>
+                <p class="text-emerald-100 text-sm mb-3">
+                  Random questions from both exam sets
+                </p>
+                <div class="flex gap-3 text-xs text-emerald-100">
+                  <span>🔀 Randomized order</span>
+                  <span>💪 Challenge mode</span>
+                </div>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-r from-emerald-600/0 to-teal-600/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+          <div class="flex gap-3">
+            <span class="text-2xl">💡</span>
+            <div class="flex-1">
+              <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-1">Tips for Success</h4>
+              <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                <li>• Read each question carefully before selecting answers</li>
+                <li>• Some questions may have multiple correct answers</li>
+                <li>• Review explanations after each question to learn</li>
+                <li>• Passing score is typically 65% or higher</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Screen -->
+      <div id="quiz-container" class="hidden space-y-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h1 id="quiz-title" class="text-2xl font-bold text-slate-900 dark:text-white mb-1"></h1>
+              <p id="quiz-subtitle" class="text-sm text-slate-600 dark:text-slate-400"></p>
+            </div>
+            <button
+              id="back-btn"
+              onclick="window.backToMenu()"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition"
+            >
+              ← Back to Menu
+            </button>
+          </div>
+
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <span id="question-counter" class="text-sm font-medium text-slate-700 dark:text-slate-300"></span>
+              <span id="score" class="text-sm font-medium text-blue-600 dark:text-blue-400"></span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+          <div class="mb-6">
+            <h2 id="question-text" class="text-xl font-semibold text-slate-900 dark:text-white mb-3"></h2>
+            <p id="lo-text" class="text-xs text-slate-500 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-900 rounded-lg p-3"></p>
+          </div>
+
+          <div
+            id="multi-hint"
+            class="hidden mb-4 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-200 dark:border-amber-800"
+          >
+            💡 This question has multiple correct answers. Select all that apply.
+          </div>
+
+          <ul id="options" class="space-y-3 mb-6"></ul>
+          <div id="feedback" class="min-h-[3rem] mb-6"></div>
+
+          <div class="flex gap-3">
+            <button
+              id="action-btn"
+              class="flex-1 px-6 py-3 rounded-xl text-base font-semibold text-white bg-blue-600 
+                     hover:bg-blue-700 active:bg-blue-800 disabled:bg-slate-300 dark:disabled:bg-slate-700 
+                     disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              Check Answer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Screen -->
+      <div id="results-container" class="hidden space-y-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+          <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            🎉 Quiz Completed!
+          </h1>
+          <p class="text-slate-600 dark:text-slate-400 mb-6">
+            Here's how you performed
+          </p>
+
+          <!-- Score Summary -->
+          <div id="score-summary" class="mb-6"></div>
+
+          <!-- Filter Buttons -->
+          <div class="flex gap-3 mb-6">
+            <button
+              onclick="window.filterResults('all')"
+              id="filter-all"
+              class="filter-btn flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white transition"
+            >
+              All (<span id="total-count">0</span>)
+            </button>
+            <button
+              onclick="window.filterResults('correct')"
+              id="filter-correct"
+              class="filter-btn flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+            >
+              Correct (<span id="correct-count">0</span>)
+            </button>
+            <button
+              onclick="window.filterResults('incorrect')"
+              id="filter-incorrect"
+              class="filter-btn flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+            >
+              Incorrect (<span id="incorrect-count">0</span>)
+            </button>
+          </div>
+
+          <!-- Results List -->
+          <div id="results-list" class="space-y-3"></div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3 mt-6">
+            <button
+              onclick="window.backToMenu()"
+              class="flex-1 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-xl transition"
+            >
+              Back to Menu
+            </button>
+            <button
+              onclick="window.retryQuiz()"
+              class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script define:vars={{ examsData }}>
+    let currentExamMode = null;
+    let questions = [];
+    let currentIndex = 0;
+    let selectedKeys = new Set();
+    let score = 0;
+    let answered = false;
+    let totalPoints = 0;
+    let examInfo = {};
+    let userAnswers = [];
+    let currentFilter = 'all';
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    window.selectExam = function (mode) {
+      currentExamMode = mode;
+
+      if (mode === 'exam1') {
+        questions = examsData.exam1.questions;
+        examInfo = examsData.exam1.info;
+      } else if (mode === 'exam2') {
+        questions = examsData.exam2.questions;
+        examInfo = examsData.exam2.info;
+      } else if (mode === 'random') {
+        const exam1Sample = shuffleArray(examsData.exam1.questions).slice(0, 20);
+        const exam2Sample = shuffleArray(examsData.exam2.questions).slice(0, 20);
+        questions = shuffleArray([...exam1Sample, ...exam2Sample]);
+        examInfo = {
+          title: 'Random Mix - ISTQB CTAL-TAE',
+          total_questions: 40,
+          version: 'Mixed',
+          date: 'Random Selection'
+        };
+      }
+
+      totalPoints = questions.reduce((sum, q) => sum + (q.points || 1), 0);
+      currentIndex = 0;
+      score = 0;
+      answered = false;
+      userAnswers = [];
+      currentFilter = 'all';
+
+      document.getElementById('exam-selector').classList.add('hidden');
+      document.getElementById('quiz-container').classList.remove('hidden');
+      document.getElementById('results-container').classList.add('hidden');
+
+      document.getElementById('quiz-title').textContent = examInfo.title;
+      document.getElementById('quiz-subtitle').textContent =
+        `${examInfo.version} • ${examInfo.date} • ${examInfo.total_questions} questions`;
+
+      renderQuestion();
+    };
+
+    window.backToMenu = function () {
+      if (confirm('Are you sure you want to go back? Your progress will be lost.')) {
+        document.getElementById('exam-selector').classList.remove('hidden');
+        document.getElementById('quiz-container').classList.add('hidden');
+        document.getElementById('results-container').classList.add('hidden');
+      }
+    };
+
+    window.retryQuiz = function () {
+      window.selectExam(currentExamMode);
+    };
+
+    const counterEl = document.getElementById('question-counter');
+    const questionEl = document.getElementById('question-text');
+    const loEl = document.getElementById('lo-text');
+    const optionsEl = document.getElementById('options');
+    const feedbackEl = document.getElementById('feedback');
+    const actionBtn = document.getElementById('action-btn');
+    const scoreEl = document.getElementById('score');
+    const progressBar = document.getElementById('progress-bar');
+    const multiHint = document.getElementById('multi-hint');
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      selectedKeys = new Set();
+      answered = false;
+
+      counterEl.textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+      const progress = ((currentIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+
+      questionEl.textContent = q.text;
+      loEl.textContent = q.learningObjective || 'No learning objective specified';
+
+      if (q.correct.length > 1) {
+        multiHint.classList.remove('hidden');
+      } else {
+        multiHint.classList.add('hidden');
+      }
+
+      optionsEl.innerHTML = '';
+      feedbackEl.innerHTML = '';
+
+      q.options.forEach((opt) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.key = opt.key;
+
+        btn.textContent = `${opt.key.toUpperCase()}) ${opt.text}`;
+        btn.className =
+          'option w-full text-left px-4 py-3 border-2 rounded-xl text-sm font-medium ' +
+          'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 ' +
+          'text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-700 ' +
+          'transition-all duration-200 cursor-pointer hover:shadow-md';
+
+        btn.addEventListener('click', () => toggleSelection(opt.key, btn, q));
+        li.appendChild(btn);
+        optionsEl.appendChild(li);
+      });
+
+      actionBtn.textContent = 'Check Answer';
+      actionBtn.disabled = false;
+      updateScore();
+    }
+
+    function toggleSelection(key, btn, q) {
+      if (answered) return;
+
+      const multi = q.correct.length > 1;
+
+      if (!multi) {
+        selectedKeys = new Set([key]);
+        document.querySelectorAll('button.option').forEach((b) => {
+          b.classList.remove(
+            'ring-2',
+            'ring-blue-500',
+            'bg-blue-50',
+            'dark:bg-blue-900/30',
+            'border-blue-500'
+          );
+          b.classList.add('border-slate-200', 'dark:border-slate-700');
+        });
+        btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+        btn.classList.add(
+          'ring-2',
+          'ring-blue-500',
+          'bg-blue-50',
+          'dark:bg-blue-900/30',
+          'border-blue-500'
+        );
+      } else {
+        if (selectedKeys.has(key)) {
+          selectedKeys.delete(key);
+          btn.classList.remove(
+            'ring-2',
+            'ring-blue-500',
+            'bg-blue-50',
+            'dark:bg-blue-900/30',
+            'border-blue-500'
+          );
+          btn.classList.add('border-slate-200', 'dark:border-slate-700');
+        } else {
+          selectedKeys.add(key);
+          btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+          btn.classList.add(
+            'ring-2',
+            'ring-blue-500',
+            'bg-blue-50',
+            'dark:bg-blue-900/30',
+            'border-blue-500'
+          );
+        }
+      }
+    }
+
+    function setsEqual(a, b) {
+      if (a.size !== b.size) return false;
+      for (const v of a) if (!b.has(v)) return false;
+      return true;
+    }
+
+    function checkAnswer() {
+      const q = questions[currentIndex];
+
+      if (selectedKeys.size === 0) {
+        feedbackEl.innerHTML = `
+          <div class="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-lg">
+            <p class="text-sm text-amber-800 dark:text-amber-200 font-medium">
+              ⚠️ Please select at least one option before checking your answer.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const correctSet = new Set(q.correct);
+      const isCorrect = setsEqual(selectedKeys, correctSet);
+
+      userAnswers.push({
+        question: q,
+        userAnswer: Array.from(selectedKeys),
+        isCorrect,
+        pointsEarned: isCorrect ? (q.points || 1) : 0
+      });
+
+      const optionButtons = document.querySelectorAll('button.option');
+      optionButtons.forEach((btn) => {
+        const key = btn.dataset.key;
+        btn.disabled = true;
+        btn.classList.remove(
+          'hover:bg-slate-50',
+          'dark:hover:bg-slate-800',
+          'cursor-pointer',
+          'hover:shadow-md'
+        );
+        btn.classList.add('cursor-not-allowed');
+
+        if (correctSet.has(key)) {
+          btn.classList.remove(
+            'border-slate-200',
+            'dark:border-slate-700',
+            'ring-blue-500',
+            'border-blue-500'
+          );
+          btn.classList.add(
+            'border-green-500',
+            'bg-green-50',
+            'dark:bg-green-900/30',
+            'ring-2',
+            'ring-green-500'
+          );
+        } else if (selectedKeys.has(key)) {
+          btn.classList.remove(
+            'border-slate-200',
+            'dark:border-slate-700',
+            'ring-blue-500',
+            'border-blue-500'
+          );
+          btn.classList.add(
+            'border-red-500',
+            'bg-red-50',
+            'dark:bg-red-900/30',
+            'ring-2',
+            'ring-red-500'
+          );
+        }
+      });
+
+      if (isCorrect) {
+        const pts = q.points || 1;
+        score += pts;
+        feedbackEl.innerHTML = `
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-r-lg">
+            <p class="text-sm font-semibold text-green-800 dark:text-green-200 mb-2">
+              ✅ Correct! (+${pts} point${pts > 1 ? 's' : ''})
+            </p>
+            <p class="text-sm text-green-700 dark:text-green-300">
+              ${q.explanation}
+            </p>
+          </div>
+        `;
+      } else {
+        const correctStr = q.correct.map((k) => k.toUpperCase()).join(', ');
+        feedbackEl.innerHTML = `
+          <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg">
+            <p class="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
+              ❌ Incorrect. The correct answer${
+                q.correct.length > 1 ? 's are' : ' is'
+              }: ${correctStr}
+            </p>
+            <p class="text-sm text-red-700 dark:text-red-300">
+              ${q.explanation}
+            </p>
+          </div>
+        `;
+      }
+
+      answered = true;
+      actionBtn.textContent =
+        currentIndex < questions.length - 1 ? 'Next Question →' : 'See Results';
+      updateScore();
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz-container').classList.add('hidden');
+      document.getElementById('results-container').classList.remove('hidden');
+
+      const percentage = ((score / totalPoints) * 100).toFixed(1);
+      const passed = percentage >= 65;
+      const correctCount = userAnswers.filter((a) => a.isCorrect).length;
+      const incorrectCount = userAnswers.length - correctCount;
+
+      document.getElementById('total-count').textContent = userAnswers.length;
+      document.getElementById('correct-count').textContent = correctCount;
+      document.getElementById('incorrect-count').textContent = incorrectCount;
+
+      const scoreSummary = document.getElementById('score-summary');
+      scoreSummary.innerHTML = `
+        <div class="bg-slate-50 dark:bg-slate-900 border-2 ${
+          passed ? 'border-green-500' : 'border-amber-500'
+        } p-6 rounded-xl">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-3xl font-bold ${
+                passed ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
+              }">
+                ${score} / ${totalPoints} points
+              </h3>
+              <p class="text-xl text-slate-700 dark:text-slate-300">${percentage}%</p>
+            </div>
+            <div class="text-6xl">${passed ? '🎉' : '📚'}</div>
+          </div>
+          <p class="text-sm ${
+            passed ? 'text-green-700 dark:text-green-300' : 'text-amber-700 dark:text-amber-300'
+          }">
+            ${
+              passed
+                ? '✅ Congratulations! You passed the exam!'
+                : '⚠️ Keep studying and try again. You can do it!'
+            }
+          </p>
+          <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-lg">
+              <div class="text-2xl font-bold text-slate-900 dark:text-white">${userAnswers.length}</div>
+              <div class="text-xs text-slate-600 dark:text-slate-400">Total</div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+              <div class="text-2xl font-bold text-green-600 dark:text-green-400">${correctCount}</div>
+              <div class="text-xs text-green-700 dark:text-green-300">Correct</div>
+            </div>
+            <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+              <div class="text-2xl font-bold text-red-600 dark:text-red-400">${incorrectCount}</div>
+              <div class="text-xs text-red-700 dark:text-red-300">Incorrect</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      currentFilter = 'all';
+      renderResultsList();
+      progressBar.style.width = '100%';
+    }
+
+    window.filterResults = function (filter) {
+      currentFilter = filter;
+
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add(
+          'bg-slate-200',
+          'dark:bg-slate-700',
+          'text-slate-700',
+          'dark:text-slate-300'
+        );
+      });
+
+      const activeBtn = document.getElementById(`filter-${filter}`);
+      activeBtn.classList.remove(
+        'bg-slate-200',
+        'dark:bg-slate-700',
+        'text-slate-700',
+        'dark:text-slate-300'
+      );
+      activeBtn.classList.add('bg-blue-600', 'text-white');
+
+      renderResultsList();
+    };
+
+    window.toggleQuestion = function (index) {
+      const detailsEl = document.getElementById(`details-${index}`);
+      const iconEl = document.getElementById(`icon-${index}`);
+
+      if (detailsEl.classList.contains('hidden')) {
+        detailsEl.classList.remove('hidden');
+        iconEl.textContent = '▼';
+      } else {
+        detailsEl.classList.add('hidden');
+        iconEl.textContent = '▶';
+      }
+    };
+
+    function renderResultsList() {
+      const resultsList = document.getElementById('results-list');
+      let filteredAnswers = userAnswers;
+
+      if (currentFilter === 'correct') {
+        filteredAnswers = userAnswers.filter((a) => a.isCorrect);
+      } else if (currentFilter === 'incorrect') {
+        filteredAnswers = userAnswers.filter((a) => !a.isCorrect);
+      }
+
+      if (filteredAnswers.length === 0) {
+        resultsList.innerHTML = `
+          <div class="text-center py-8 text-slate-500 dark:text-slate-400">
+            No questions in this category
+          </div>
+        `;
+        return;
+      }
+
+      resultsList.innerHTML = filteredAnswers
+        .map((answer) => {
+          const globalIdx = userAnswers.indexOf(answer);
+          const q = answer.question;
+          const statusIcon = answer.isCorrect ? '✅' : '❌';
+          const statusColor = answer.isCorrect
+            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+
+          const userAnswerText = answer.userAnswer.map((k) => k.toUpperCase()).join(', ') || '—';
+          const correctAnswerText = q.correct.map((k) => k.toUpperCase()).join(', ');
+          const shortText =
+            q.text.length > 90 ? q.text.slice(0, 87).replace(/\s+$/,'') + '…' : q.text;
+
+          return `
+          <div class="border-2 ${statusColor} rounded-xl overflow-hidden">
+            <button
+              onclick="window.toggleQuestion(${globalIdx})"
+              class="w-full px-4 py-3 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              <div class="flex items-center gap-2 text-left">
+                <span>${statusIcon}</span>
+                <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Q${globalIdx + 1}: ${shortText}
+                </span>
+              </div>
+              <span id="icon-${globalIdx}" class="text-xs text-slate-500 dark:text-slate-400">▶</span>
+            </button>
+            <div
+              id="details-${globalIdx}"
+              class="hidden border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-4 py-3 text-sm text-slate-800 dark:text-slate-200 space-y-2"
+            >
+              <p><span class="font-semibold">Your answer:</span> ${userAnswerText}</p>
+              <p><span class="font-semibold">Correct answer:</span> ${correctAnswerText}</p>
+              <p><span class="font-semibold">Learning objective:</span> ${
+                q.learningObjective || 'N/A'
+              }</p>
+              <p><span class="font-semibold">Explanation:</span> ${q.explanation}</p>
+            </div>
+          </div>
+        `;
+        })
+        .join('');
+    }
+
+    function updateScore() {
+      scoreEl.textContent = `Score: ${score} / ${totalPoints} points`;
+    }
+
+    // Main button handler
+    actionBtn.addEventListener('click', () => {
+      if (!answered) {
+        checkAnswer();
+      } else {
+        nextQuestion();
+      }
+    });
+  </script>
+</Base>

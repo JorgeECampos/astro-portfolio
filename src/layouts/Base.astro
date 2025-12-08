@@ -1,19 +1,74 @@
 ---
 import '../styles/global.css';
 import Particles from '../components/Particles.jsx';
-const { title = 'Portfolio', description = 'Technical Writing Portfolio' } = Astro.props;
+
+// Defaults SEO
+const defaultTitle = 'Jorge Campos | Technical Writer & Developer';
+const defaultDescription =
+  'Portafolio profesional de Jorge Campos, Technical Writer especializado en documentación técnica, APIs, DevOps y apps móviles.';
+
+const {
+  title = defaultTitle,
+  description = defaultDescription,
+} = Astro.props;
+
+// Canonical URL (según la ruta actual)
+const siteUrl = 'https://jorgecamposdocs.vercel.app';
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+
+// Datos estructurados (Schema.org)
+const schemaPerson = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Jorge Campos',
+  url: siteUrl,
+  jobTitle: 'Technical Writer & Developer',
+  description: defaultDescription,
+  sameAs: [
+    'https://github.com/JorgeECampos',
+    'https://www.linkedin.com/in/jorgeecampos/',
+  ],
+};
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- 🔹 Título y descripción (override por página con Astro.props) -->
     <title>{title}</title>
     <meta name="description" content={description} />
+
+    <!-- 🔹 Canonical por página -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- 🔹 Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:site_name" content="Jorge Campos – Portfolio" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta
+      property="og:image"
+      content={`${siteUrl}/preview.png`}
+    />
+
+    <!-- 🔹 Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta
+      name="twitter:image"
+      content={`${siteUrl}/preview.png`}
+    />
+
+    <!-- 🔹 Schema.org Person -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(schemaPerson)}
+    />
+
     <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
 
